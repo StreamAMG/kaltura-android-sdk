@@ -22,3 +22,6 @@ local.properties
 *.iml
 .idea
 .gradle
+
+#sample app code
+/kaltura-android-app
