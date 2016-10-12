@@ -1,4 +1,4 @@
-include ':googlemediaframework'
+include ':googlemediaframework', ':kaltura-android-app'
 include ':playerSDK'
 include ':kalturaPlay'
 /*include ':testapp'*/
