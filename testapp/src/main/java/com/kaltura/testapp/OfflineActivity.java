@@ -17,8 +17,8 @@ import com.kaltura.playersdk.PlayerViewController;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.streamamg.kalturaplayerdemo.helpers.AssetsFetcher;
-import com.streamamg.kalturaplayerdemo.helpers.VideoDownloader;
+import helpers.AssetsFetcher;
+import helpers.VideoDownloader;
 
 public class OfflineActivity extends Activity implements DemoAdapter.MyClickListener, PlayerFragment.OnFragmentInteractionListener, PlayerViewController.SourceURLProvider {
     private HashMap<String, String> values;

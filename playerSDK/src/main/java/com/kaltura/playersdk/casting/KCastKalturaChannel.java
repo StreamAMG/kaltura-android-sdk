@@ -20,9 +20,12 @@ public class KCastKalturaChannel implements Cast.MessageReceivedCallback {
 
     public interface KCastKalturaChannelListener {
         void readyForMedia(String[] castParams);
+        void ccOnSenderConnected(int numOfSendersConnected);
+        void ccOnSenderDisconnected(int numOfSendersConnected);
         void ccUpdateAdDuration(int adDuration);
         void ccUserInitiatedPlay();
-        void ccPostEnded();
+        void ccReceiverAdOpen();
+        void ccReceiverAdComplete();
         void textTeacksRecived(HashMap<String,Integer> textTrackHash);
         void videoTracksReceived(List<Integer> videoTracksList);
         void onCastReceiverError(String errorMsg, int errorCode);
@@ -50,17 +53,38 @@ public class KCastKalturaChannel implements Cast.MessageReceivedCallback {
             LOGD(TAG, "onMessageReceived userInitiatedPlay");
             //mListener.ccUserInitiatedPlay();
         }
-        else if (s1.contains("postEnded")){
-            LOGD(TAG, "onMessageReceived postEnded");
-            //mListener.ccPostEnded();
-        }
-
         else if (s1.startsWith("chromecastReceiverAdDuration")) {
             String[] params = s1.split("\\|");
             if (params.length == 2) {
                 if (params[1] != null) {
                     LOGD(TAG, "onMessageReceived chromecastReceiverAdDuration = " + params[1]);
                     //mListener.ccUpdateAdDuration(Integer.valueOf(params[1]));
+                }
+            }
+        }
+        else if (s1.contains("chromecastReceiverAdOpen")){
+            LOGD(TAG, "onMessageReceived chromecastReceiverAdOpen");
+            mListener.ccReceiverAdOpen();
+        }
+        else if (s1.contains("chromecastReceiverAdComplete")){
+            LOGD(TAG, "onMessageReceived chromecastReceiverAdComplete");
+            mListener.ccReceiverAdComplete();
+        }
+        else if (s1.startsWith("chromecastReceiverOnSenderConnected")) {
+            String[] params = s1.split("\\|");
+            if (params.length == 2) {
+                if (params[1] != null) {
+                    LOGD(TAG, "onMessageReceived chromecastReceiverOnSenderConnected = " + params[1]);
+                    mListener.ccOnSenderConnected(Integer.valueOf(params[1]));
+                }
+            }
+        }
+        else if (s1.startsWith("chromecastReceiverOnSenderDisconnected")) {
+            String[] params = s1.split("\\|");
+            if (params.length == 2) {
+                if (params[1] != null) {
+                    LOGD(TAG, "onMessageReceived chromecastReceiverOnSenderDisconnected = " + params[1]);
+                    mListener.ccOnSenderDisconnected(Integer.valueOf(params[1]));
                 }
             }
         }

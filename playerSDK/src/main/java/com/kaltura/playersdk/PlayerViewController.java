@@ -35,6 +35,7 @@ import com.kaltura.playersdk.helpers.CacheManager;
 import com.kaltura.playersdk.helpers.KStringUtilities;
 import com.kaltura.playersdk.interfaces.KCastProvider;
 import com.kaltura.playersdk.interfaces.KMediaControl;
+import com.kaltura.playersdk.interfaces.KPrefetchListener;
 import com.kaltura.playersdk.players.KMediaFormat;
 import com.kaltura.playersdk.players.KPlayer;
 import com.kaltura.playersdk.players.KPlayerController;
@@ -103,7 +104,8 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
 
     private KCastProvider mCastProvider;
 
-    public static void prefetchPlayerResources(KPPlayerConfig config, final List<Uri> uriItemsList, Activity activity) {
+    public static void prefetchPlayerResources(KPPlayerConfig config, final List<Uri> uriItemsList, final KPrefetchListener prefetchListener, Activity activity) {
+        LOGD(TAG, "Start prefetchPlayerResources");
 
         final PlayerViewController player = new PlayerViewController(activity);
 
@@ -135,18 +137,27 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
             public void handler() {
                 LOGD(TAG, "Player ready after prefetch - will now destroy player");
                 player.removePlayer();
+                if (prefetchListener != null) {
+                    prefetchListener.onPrefetchFinished();
+                }
             }
         });
     }
 
     public KCastProvider setCastProvider(KCastProvider castProvider) {
+        boolean isFirstSetup = true;
+        if (mCastProvider != null) { //From 2.50 - //if (mCastProvider != null || (castProvider != null && castProvider.getNumOfConnectedSenders() > 1)) {
+            isFirstSetup = false;
+        }
 
         mCastProvider = castProvider;
         if (mCastProvider == null) {
             return null;
         }
-        boolean isReconnect = mCastProvider.isRecconected();
-        if (isReconnect) {
+        mCastProvider.init(mActivity);
+        boolean isReconnect = mCastProvider.isReconnected() || mCastProvider.getSelectedCastDevice() != null;
+        boolean isCasting = mCastProvider.isCasting();
+        if (isCasting || mCastProvider.getSelectedCastDevice() != null) {
             mCastProvider.startReceiver(mActivity);
         }
 
@@ -154,44 +165,36 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         if (isReconnect) {
             mWebView.triggerEvent("chromecastDeviceDisConnected", null);
         }
-        mWebView.triggerEvent("chromecastDeviceConnected", null);
+        mWebView.triggerEvent("chromecastDeviceConnected", "" + getCurrentPlaybackTime());
 
-        if(isReconnect) {
+        if(isReconnect) { // From 2.50  if(isReconnect && (isCasting || !isFirstSetup)) { // && !isFirstSetup) || mCastProvider.getSessionEntryID() != null) {
             asyncEvaluate("{mediaProxy.entry.id}", "EntryId", new PlayerViewController.EvaluateListener() {
                 @Override
                 public void handler(final String idEvaluateResponse) {
                     if (idEvaluateResponse != null && !"null".equals(idEvaluateResponse)) {
                         pause();
+                        if (mCastProvider != null && mCastProvider.isCasting()) {
+                            LOGD(TAG, "----- Before Sending new AD Tag on CC --------");
+                            String newAdTag = getConfig().getConfigValueString("doubleClick.adTagUrl");
+                            if (newAdTag != null) {
+                                LOGD(TAG, "----- Sending new AD Tag to CC --------");
+                                ((KCastProviderV3Impl)mCastProvider).sendMessage("{\"type\":\"setKDPAttribute\",\"plugin\":\"doubleClick\",\"property\":\"adTagUrl\",\"value\":\"" + newAdTag + "\"}");
+                            }
+                        }
                         if (getConfig().getConfigValueString("proxyData") == null || "".equals(getConfig().getConfigValueString("proxyData"))) {
-                            changeMedia(idEvaluateResponse);
+                            castChangeMedia(idEvaluateResponse);
                         } else {
                             try {
                                 JSONObject changeMediaJSON = new JSONObject();
                                 JSONObject proxyData = new JSONObject(getConfig().getConfigValueString("proxyData"));
                                 changeMediaJSON.put("entryId", idEvaluateResponse);
                                 changeMediaJSON.put("proxyData", proxyData);
-                                changeMedia(changeMediaJSON);
+                                castChangeMedia(changeMediaJSON);
                             } catch (JSONException e) {
                                 LOGE(TAG, "Error could not create change media proxy dat object");
                             }
                         }
 
-//                        final long currPos = sessionManagerListener.getSessionManager().getCurrentCastSession().getRemoteMediaClient().getApproximateStreamPosition();
-//
-//                        final String currEntryName = sessionManagerListener.getSessionManager().getCurrentCastSession().getRemoteMediaClient().getMediaInfo().getMetadata().getString(MediaMetadata.KEY_TITLE);
-//                        asyncEvaluate("{mediaProxy.entry.name}", "EntryTitle", new PlayerViewController.EvaluateListener() {
-//                            @Override
-//                            public void handler(String nameEvaluateResponse) {
-//                                if (nameEvaluateResponse != null && !"null".equals(nameEvaluateResponse)) {
-//                                    changeMedia(idEvaluateResponse);
-//                                    if (nameEvaluateResponse.equals(currEntryName)) {
-//                                        sessionManagerListener.getSessionManager().getCurrentCastSession().getRemoteMediaClient().seek(currPos);
-//                                        //playerController.seek(currPos);
-//                                    }
-//                                }
-//
-//                            }
-//                        });
                     }
                 }
             });
@@ -265,11 +268,11 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
             public void handler() {
                 if (eventListeners != null) {
                     for (KPEventListener listener: eventListeners) {
-                        listener.onKPlayerStateChanged(PlayerViewController.this, KPlayerState.LOADED);
+                        listener.onKPlayerStateChanged(PlayerViewController.this, KPlayerState.PRE_LOADED);
                     }
                 }
                 if (mOnKPStateChangedEventListener != null) {
-                    mOnKPStateChangedEventListener.onKPlayerStateChanged(PlayerViewController.this, KPlayerState.LOADED);
+                    mOnKPStateChangedEventListener.onKPlayerStateChanged(PlayerViewController.this, KPlayerState.PRE_LOADED);
                 }
             }
         });
@@ -328,6 +331,31 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         }
         isMediaChanged = true;
         playerController.changeMedia();
+        sendNotification("changeMedia", proxyData.toString());
+    }
+
+    public void castChangeMedia(String entryId) {
+        if (entryId != null && entryId.length() > 0) {
+            JSONObject entryJson = new JSONObject();
+            try {
+                isMediaChanged = true;
+                entryJson.put("entryId", entryId);
+                String jsonString = entryJson.toString();
+                playerController.castChangeMedia();
+                sendNotification("changeMedia",jsonString);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void castChangeMedia(JSONObject proxyData) {
+        if (proxyData == null) {
+            return;
+        }
+        isMediaChanged = true;
+        playerController.castChangeMedia();
         sendNotification("changeMedia", proxyData.toString());
     }
 
@@ -435,7 +463,11 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
             playerController.destroy();
         }
         if (mWebView != null) {
-            mWebView.loadUrl("about:blank");
+            try {
+                mWebView.loadUrl("about:blank");
+            }  catch(NullPointerException e){
+                LOGE(TAG, "WebView NullPointerException caught " + e.getMessage());
+            }
             removeView(mWebView);
             mWebView.destroy();
         }
@@ -837,6 +869,33 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
 
         if(KPlayerListener.ErrorKey.equals(eventName) && !getConfig().isWebDialogEnabled()) {
             LOGE(TAG, "blocking Dialog for: " + eventValue);
+            if (eventValue.contains("Socket")) {
+                String isExternalAdPlayer = getConfig().getConfigValueString("EmbedPlayer.UseExternalAdPlayer");
+                if (player != null && isExternalAdPlayer != null && "true".equals(isExternalAdPlayer)) {
+                    setPrepareWithConfigurationMode(false);
+                    player.setPrepareWithConfigurationModeOff();
+                }
+                asyncEvaluate("{mediaProxy.entry.id}", "EntryId", new PlayerViewController.EvaluateListener() {
+                    @Override
+                    public void handler(final String idEvaluateResponse) {
+                        if (idEvaluateResponse != null && !"null".equals(idEvaluateResponse)) {
+                            if (getConfig().getConfigValueString("proxyData") == null || "".equals(getConfig().getConfigValueString("proxyData"))) {
+                                changeMedia(idEvaluateResponse);
+                            } else {
+                                try {
+                                    JSONObject changeMediaJSON = new JSONObject();
+                                    JSONObject proxyData = new JSONObject(getConfig().getConfigValueString("proxyData"));
+                                    changeMediaJSON.put("entryId", idEvaluateResponse);
+                                    changeMediaJSON.put("proxyData", proxyData);
+                                    changeMedia(changeMediaJSON);
+                                } catch (JSONException e) {
+                                    LOGE(TAG, "Error could not create change media proxy dat object");
+                                }
+                            }
+                        }
+                    }
+                });
+            }
 
             sendOnKPlayerError(eventValue);
             return;
@@ -1045,15 +1104,15 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
                     }
 
                     if ("Off".equalsIgnoreCase(attributeValue)) {
-                            getTrackManager().switchTrack(TrackType.TEXT, -1);
-                            return;
+                        getTrackManager().switchTrack(TrackType.TEXT, -1);
+                        return;
                     }
                     for (int index = 0; index < getTrackManager().getTextTrackList().size(); index++) {
-                            //LOGD(TAG, "<" + getTrackManager().getTextTrackList().get(index) + ">/<" + attributeValue + ">");
-                            if ((getTrackManager().getTextTrackList().get(index).trackLabel).equals(attributeValue)) {
-                                getTrackManager().switchTrack(TrackType.TEXT, index);
-                                return;
-                            }
+                        //LOGD(TAG, "<" + getTrackManager().getTextTrackList().get(index) + ">/<" + attributeValue + ">");
+                        if ((getTrackManager().getTextTrackList().get(index).trackLabel).equals(attributeValue)) {
+                            getTrackManager().switchTrack(TrackType.TEXT, index);
+                            return;
+                        }
                     }
 
                     break;
@@ -1103,6 +1162,15 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
 
         try {
             trackIndex = Integer.parseInt(index);
+            if (TrackType.VIDEO.equals(trackType) || TrackType.AUDIO.equals(trackType)) {
+                if (mCastProvider != null && mCastProvider.isCasting()) {
+                    LOGD(TAG, "switchTrack " + trackType.name() + " is not supported while casting...");
+                    return;
+                }
+                if (trackIndex < 0) {
+                    trackIndex = 0;
+                }
+            }
         } catch (NumberFormatException e) {
             LOGE(TAG, "switchTrack " + trackType.name() + " failed parsing index, ignoring request" + index);
             return;

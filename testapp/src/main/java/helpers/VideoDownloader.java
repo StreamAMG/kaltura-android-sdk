@@ -1,4 +1,4 @@
-package com.streamamg.kalturaplayerdemo.helpers;
+package helpers;
 
 import android.content.Context;
 import android.os.AsyncTask;

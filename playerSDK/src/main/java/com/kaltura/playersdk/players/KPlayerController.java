@@ -81,6 +81,7 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
     private String mEntryThumbnailUrl = "";
     private String mMediaProxy = "";
 
+    long positionBeforeChangeMediaForCasting = 0;
 
 
     private KCastProviderV3Impl mCastProvider;
@@ -172,10 +173,14 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
                     @Override
                     public void run() {
                         if (player != null && mCastPlayer != null) {
-                            mCastPlayer.load(player.getCurrentPlaybackTime(), mEntryName, mEntryDescription, mEntryThumbnailUrl, mEntryId);
+                            long fromPosition = positionBeforeChangeMediaForCasting;// != 0 ? positionBeforeChangeMediaForCasting : player.getCurrentPlaybackTime();
+                            player.setCurrentPlaybackTime(fromPosition);
+                            mCastPlayer.load(fromPosition, mEntryName, mEntryDescription, mEntryThumbnailUrl, mEntryId);
+                            positionBeforeChangeMediaForCasting = 0;
+                            currentState = UIState.Play;
                         }
                     }
-                }, 2000);
+                }, 250);
             }
 
             @Override
@@ -187,11 +192,10 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
             }
 
             @Override
-            public void onStopCasting() {
+            public void onStopCasting(boolean appInBg) {
                 if (mCastPlayer != null) {
                     if(player != null) {
-                        if (mCastProvider != null && mCastProvider.getCastSession() != null && mCastProvider.getCastSession().getRemoteMediaClient() != null)
-                        {
+                        if (mCastProvider != null && mCastProvider.getCastSession() != null && mCastProvider.getCastSession().getRemoteMediaClient() != null) {
                             player.setCurrentPlaybackTime(mCastProvider.getCastSession().getRemoteMediaClient().getApproximateStreamPosition());
                         } else {
                             player.setCurrentPlaybackTime(mCastPlayer.getCurrentPosition());
@@ -201,10 +205,26 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
                     mCastPlayer = null;
                 }
                 mCastProvider = null;
+                LOGD(TAG,"isBackgrounded = " + isBackgrounded + " appInBg = " + appInBg);
+                if (!isBackgrounded && !appInBg) {
+                    LOGD(TAG,"disconnect and PLAY");
+                    //play();
+                    if (player != null) {
+                        player.play();
+                    }
+                } else {
+                    //some cases doPause does not influance
+                    LOGD(TAG,"disconnect and PAUSE");
+                    if (appInBg) {
+                        pause();
+                    } else if (isBackgrounded) {
+                        if (parentViewController != null) {
+                            ((PlayerViewController) parentViewController).sendNotification("doPause", null);
+                        }
+                    }
+                }
                 currentState = UIState.Pause;
-                play();
             }
-
 
             @Override
             public void onCastMediaStateChanged(KCastMediaRemoteControl.State state) {
@@ -285,9 +305,29 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
 
     //remove caption before changeMedia
     public void changeMedia() {
-        player.pause();
-        player.setCurrentPlaybackTime(0);
-        player.switchTrack(TrackType.TEXT,-1);
+        positionBeforeChangeMediaForCasting = 0;
+        if(mCastPlayer != null && mCastPlayer.hasMediaSession(true)) {
+            mCastPlayer.pause();
+        }
+        if (player != null) {
+            player.pause();
+        }
+        //player.setCurrentPlaybackTime(0);
+        //player.switchTrack(TrackType.TEXT,-1);
+    }
+
+    public void castChangeMedia() {
+        if (player != null) {
+            positionBeforeChangeMediaForCasting = player.getCurrentPlaybackTime();
+        }
+        if(mCastPlayer != null && mCastPlayer.hasMediaSession(true)) {
+            mCastPlayer.pause();
+        }
+        if (player != null) {
+            player.pause();
+        }
+        //player.setCurrentPlaybackTime(0);
+        //player.switchTrack(TrackType.TEXT,-1);
     }
 
     public void setEntryMetadata() {
@@ -405,6 +445,7 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
             } else {
                 if (mCastProvider.getCastMediaRemoteControl() != null) {
                     mCastProvider.getCastMediaRemoteControl().play();
+
                 }
             }
         }
@@ -412,7 +453,9 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
 
     @Override
     public void start() {
-        play();
+        if (parentViewController != null) {
+            ((PlayerViewController) parentViewController).sendNotification("doPlay", null);
+        }
     }
 
     @Override
@@ -813,7 +856,7 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
                     isIMAActive = true;
                     imaManager.contentComplete();
                 } else {
-                    playerListener.eventWithValue(player, KPlayerListener.SeekedKey, null);
+                    //playerListener.eventWithValue(player, KPlayerListener.SeekedKey, null);
                     playerListener.eventWithValue(player, KPlayerListener.EndedKey, null);
                 }
                 break;
