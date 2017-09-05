@@ -10,7 +10,7 @@ apply from: "../kalturaCommon.gradle"
 
 android {
     compileSdkVersion kaltura.compileSdkVersion
-    buildToolsVersion '24.0.2'
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         minSdkVersion kaltura.minSdkVersion

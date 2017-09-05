@@ -59,8 +59,8 @@ public class TrackFormat {
         }
         String trackName;
         if (MimeTypes.isVideo(mimeType)) {
-            trackName = joinWithSeparator(joinWithSeparator(buildResolutionString(),
-                    buildBitrateString()), buildTrackIdString());
+            trackName = joinWithSeparator(buildResolutionString(),
+                    buildBitrateString());
 
         } else if (MimeTypes.isAudio(mimeType)) {
             trackName = buildTrackIdString();
@@ -86,8 +86,8 @@ public class TrackFormat {
         }
         String trackName;
         if (MimeTypes.isVideo(mimeType)) {
-            trackName = joinWithSeparator(joinWithSeparator(buildResolutionString(),
-                    buildBitrateString()), buildTrackIdString());
+            trackName = joinWithSeparator(buildResolutionString(),
+                    buildBitrateString());
 
         } else if (MimeTypes.isAudio(mimeType)) {
             trackName = buildTrackIdString();
