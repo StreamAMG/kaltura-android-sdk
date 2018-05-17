@@ -34,7 +34,7 @@ Quick Start Guide
 ======
 
 ```
-1. git clone https://github.com/kaltura/player-sdk-native-android.git to the same folder of your app.
+1. git clone https://{username}@bitbucket.org/sukdev/kaltura-android-sdk.git to the same folder of your app.
 ```
 ```
 2. Add reference to PlayerSDK module from your project:
@@ -44,10 +44,10 @@ Quick Start Guide
 
 ```
 include ':googlemediaframework'
-project(':googlemediaframework').projectDir=new File('../player-sdk-native-android/googlemediaframework')
+project(':googlemediaframework').projectDir=new File('kaltura-android-sdk/googlemediaframework')
 
 include ':playerSDK'
-project(':playerSDK').projectDir=new File('../player-sdk-native-android/playerSDK')
+project(':playerSDK').projectDir=new File('kaltura-android-sdk/playerSDK')
 
 ```
 #####Right click on your app folder ->_`Open Module Settings`_.
@@ -60,7 +60,7 @@ project(':playerSDK').projectDir=new File('../player-sdk-native-android/playerSD
 Now, you are linked to the playerSDK by reference. Be sure that you cloned the playerSDK to the same folder of your project.
 
 
-Make sure that you cloned the **_player-sdk-native-android_** project to the same folder of your project, if you prefer to clone it else where, you should update the _**`settings.gradle`**_.
+Make sure that you cloned the **_kaltura-android-sdk_** project to the same folder of your project, if you prefer to clone it else where, you should update the _**`settings.gradle`**_.
 
 API Overview
 =====
