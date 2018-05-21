@@ -22,8 +22,8 @@
 package com.google.android.libraries.mediaframework.exoplayerextensions;
 
 import android.annotation.TargetApi;
-import android.media.MediaDrm.KeyRequest;
-import android.media.MediaDrm.ProvisionRequest;
+import com.google.android.exoplayer.drm.ExoMediaDrm.KeyRequest;
+import com.google.android.exoplayer.drm.ExoMediaDrm.ProvisionRequest;
 import android.text.TextUtils;
 
 import com.google.android.exoplayer.drm.MediaDrmCallback;

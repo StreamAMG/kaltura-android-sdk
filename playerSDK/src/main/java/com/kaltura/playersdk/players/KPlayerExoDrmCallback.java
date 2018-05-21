@@ -8,6 +8,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.google.android.exoplayer.drm.DrmSessionManager;
+import com.google.android.exoplayer.drm.ExoMediaDrm;
 import com.google.android.libraries.mediaframework.exoplayerextensions.ExoplayerUtil;
 import com.google.android.libraries.mediaframework.exoplayerextensions.ExtendedMediaDrmCallback;
 import com.kaltura.playersdk.BuildConfig;
@@ -38,13 +39,13 @@ class KPlayerExoDrmCallback implements ExtendedMediaDrmCallback {
     }
 
     @Override
-    public byte[] executeProvisionRequest(UUID uuid, MediaDrm.ProvisionRequest request) throws IOException {
+    public byte[] executeProvisionRequest(UUID uuid, ExoMediaDrm.ProvisionRequest request) throws IOException {
         String url = request.getDefaultUrl() + "&signedRequest=" + new String(request.getData());
         return ExoplayerUtil.executePost(url, null, null);
     }
 
     @Override
-    public byte[] executeKeyRequest(UUID uuid, MediaDrm.KeyRequest request) throws IOException {
+    public byte[] executeKeyRequest(UUID uuid, ExoMediaDrm.KeyRequest request) throws IOException {
         
         if (mOffline) {
             if (BuildConfig.DEBUG) {
@@ -83,7 +84,7 @@ class KPlayerExoDrmCallback implements ExtendedMediaDrmCallback {
     public void setLicenseUri(String licenseUri) {
         synchronized (mLicenseLock) {
             mLicenseUri = licenseUri;
-            // notify executeKeyRequest() that we have the license uri.
+            // notify () that we have the license uri.
             mLicenseLock.notify();
         }
     }

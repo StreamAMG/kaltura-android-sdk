@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmSessionManager;
+import com.google.android.exoplayer.drm.ExoMediaCrypto;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
 
 import java.util.LinkedHashMap;
@@ -147,9 +148,14 @@ class OfflineDrmSessionManager implements DrmSessionManager {
     }
 
     @Override
-    public MediaCrypto getMediaCrypto() {
-        return mMediaCrypto;
+    public ExoMediaCrypto getMediaCrypto() {
+        return null;
     }
+
+//    @Override
+//    public MediaCrypto getMediaCrypto() {
+//        return mMediaCrypto;
+//    }
 
     @Override
     public boolean requiresSecureDecoderComponent(String mimeType) {

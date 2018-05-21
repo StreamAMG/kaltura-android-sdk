@@ -902,13 +902,6 @@ public class ExoplayerWrapper implements ExoPlayer.Listener, ChunkSampleSource.E
   }
 
   @Override
-  public void onAvailableRangeChanged(TimeRange availableRange){
-    if (infoListener != null) {
-      infoListener.onAvailableRangeChanged(availableRange);
-    }
-  }
-
-  @Override
   public void onMediaPlaylistLoadCompleted(byte[] bytes) {
 
   }

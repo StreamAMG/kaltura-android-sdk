@@ -1059,6 +1059,11 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
                     this.triggerEvent("visible", attributeValue);
                     break;
                 case licenseUri:
+                    attributeValue += "&entry_id=" + mConfig.getEntryId() + "&partner_id=" + mConfig.getPartnerId();
+                    if (mConfig.getConfigValueString("izsession") != null) {
+                        String izsession = mConfig.getConfigValueString("izsession");
+                        attributeValue += "&izsession=" + izsession;
+                    }
                     playerController.setLicenseUri(attributeValue);
                     break;
                 case nativeAction:
@@ -1257,11 +1262,11 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         isFullScreen = !isFullScreen;
         if (eventListeners != null) {
             for (KPEventListener listener : eventListeners) {
-                listener.onKPlayerFullScreenToggeled(this, isFullScreen);
+                listener.onKPlayerFullScreenToggeled(PlayerViewController.this, isFullScreen);
             }
         }
         if (mOnKPFullScreenToggledEventListener != null) {
-            mOnKPFullScreenToggledEventListener.onKPlayerFullScreenToggled(this, isFullScreen);
+            mOnKPFullScreenToggledEventListener.onKPlayerFullScreenToggled(PlayerViewController.this, isFullScreen);
         }
 
         if (eventListeners == null && mOnKPFullScreenToggledEventListener == null) {

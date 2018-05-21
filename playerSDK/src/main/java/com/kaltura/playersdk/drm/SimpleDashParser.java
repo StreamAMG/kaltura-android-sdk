@@ -10,6 +10,7 @@ import com.google.android.exoplayer.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescriptionParser;
 import com.google.android.exoplayer.dash.mpd.Period;
+import com.google.android.exoplayer.dash.mpd.RangedUri;
 import com.google.android.exoplayer.dash.mpd.Representation;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor;
@@ -68,7 +69,8 @@ class SimpleDashParser {
     }
 
     private void loadDrmInitData(Representation representation) throws IOException {
-        Uri initFile = representation.getInitializationUri().getUri();
+        Uri initFile = Uri.parse(representation.baseUrl);
+//        Uri initFile = representation.getInitializationUri().getUri();
         
         FileDataSource initChunkSource = new FileDataSource();
         DataSpec initDataSpec = new DataSpec(initFile);
