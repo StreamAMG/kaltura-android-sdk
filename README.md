@@ -223,7 +223,10 @@ mPlayerView.addEventListener(new KPEventListener() {
 ```
 
 ###DRM license:
-For loading the DRM license of a video, the config must have the izsession:
+For loading the DRM license of a video, the config must have the izsession
+izsession is an unique session that client gets after logging in to the website.
+Throughout the izsession our service is recognizing if user is allowed to play content or not.
+
 
 ```
 String izsession = "00000000-0000-0000-0000-000000000000"; // Replace with your izsession
