@@ -221,3 +221,11 @@ mPlayerView.addEventListener(new KPEventListener() {
             }
         });
 ```
+
+###DRM license:
+For loading the DRM license of a video, the config must have the izsession:
+
+```
+String izsession = "00000000-0000-0000-0000-000000000000"; // Replace with your izsession
+config.addConfig("izsession", izsession);
+```
