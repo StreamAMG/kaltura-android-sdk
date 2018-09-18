@@ -108,12 +108,16 @@ public class KControlsView extends WebView implements View.OnTouchListener {
                         mCacheManager.removeCachedResponse(Uri.parse(sourceId));
                     }
                 }
-                
+
                 return true;
             }
         });
-        this.getSettings().setUserAgentString(this.getSettings().getUserAgentString() + " kalturaNativeCordovaPlayer");
-        this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
+            this.getSettings().setUserAgentString(this.getSettings().getUserAgentString());
+        } else {
+            this.getSettings().setUserAgentString(this.getSettings().getUserAgentString() + " kalturaNativeCordovaPlayer");
+        }
+//        this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         this.setBackgroundColor(0);
     }
     
