@@ -8,7 +8,9 @@ import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.util.Base64;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.ConsoleMessage;
@@ -111,10 +113,14 @@ public class KControlsView extends WebView implements View.OnTouchListener {
 
                 return true;
             }
+
+            @Nullable
+            @Override
+            public Bitmap getDefaultVideoPoster() {
+                return Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
+            }
         });
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-            this.getSettings().setUserAgentString(this.getSettings().getUserAgentString());
-        } else {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
             this.getSettings().setUserAgentString(this.getSettings().getUserAgentString() + " kalturaNativeCordovaPlayer");
         }
 //        this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
