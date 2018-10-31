@@ -1293,7 +1293,11 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
             }else{
                 mActivity.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
             }
-            ((AppCompatActivity) mActivity).getSupportActionBar().hide();
+            if (mActivity != null) {
+                if (((AppCompatActivity) mActivity).getSupportActionBar() != null) {
+                    ((AppCompatActivity) mActivity).getSupportActionBar().hide();
+                }
+            }
         } else {
             LOGD(TAG,"Set to onCloseFullScreen");
             sendNotification("onCloseFullScreen", null);

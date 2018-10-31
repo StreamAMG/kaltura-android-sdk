@@ -124,6 +124,12 @@ public class KChromeCastPlayer implements KCastMediaRemoteControl{
             public void onSendingRemoteMediaRequest() {
 
             }
+
+            @Override
+            public void onAdBreakStatusUpdated() {
+                LOGD(TAG, "onAdBreakStatusUpdated");
+            }
+
         };
     }
 
