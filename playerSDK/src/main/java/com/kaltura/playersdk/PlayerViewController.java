@@ -69,7 +69,6 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
     public static String TAG = "PlayerViewController";
 
 
-
     private KPlayerController playerController;
     public KControlsView mWebView = null;
     private double mCurSec;
@@ -91,10 +90,10 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
     private HashMap<String, EvaluateListener> mPlayerEvaluatedHash;
     private Set<KPEventListener> eventListeners;
 
-    private KPErrorEventListener               mOnKPErrorEventListener;
-    private KPFullScreenToggledEventListener   mOnKPFullScreenToggledEventListener;
-    private KPStateChangedEventListener        mOnKPStateChangedEventListener;
-    private KPPlayheadUpdateEventListener      mOnKPPlayheadUpdateEventListener;
+    private KPErrorEventListener mOnKPErrorEventListener;
+    private KPFullScreenToggledEventListener mOnKPFullScreenToggledEventListener;
+    private KPStateChangedEventListener mOnKPStateChangedEventListener;
+    private KPPlayheadUpdateEventListener mOnKPPlayheadUpdateEventListener;
 
     private SourceURLProvider mCustomSourceURLProvider;
     private boolean isFullScreen = false;
@@ -167,7 +166,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         }
         mWebView.triggerEvent("chromecastDeviceConnected", "" + getCurrentPlaybackTime());
 
-        if(isReconnect) { // From 2.50  if(isReconnect && (isCasting || !isFirstSetup)) { // && !isFirstSetup) || mCastProvider.getSessionEntryID() != null) {
+        if (isReconnect) { // From 2.50  if(isReconnect && (isCasting || !isFirstSetup)) { // && !isFirstSetup) || mCastProvider.getSessionEntryID() != null) {
             asyncEvaluate("{mediaProxy.entry.id}", "EntryId", new PlayerViewController.EvaluateListener() {
                 @Override
                 public void handler(final String idEvaluateResponse) {
@@ -178,7 +177,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
                             String newAdTag = getConfig().getConfigValueString("doubleClick.adTagUrl");
                             if (newAdTag != null) {
                                 LOGD(TAG, "----- Sending new AD Tag to CC --------");
-                                ((KCastProviderV3Impl)mCastProvider).sendMessage("{\"type\":\"setKDPAttribute\",\"plugin\":\"doubleClick\",\"property\":\"adTagUrl\",\"value\":\"" + newAdTag + "\"}");
+                                ((KCastProviderV3Impl) mCastProvider).sendMessage("{\"type\":\"setKDPAttribute\",\"plugin\":\"doubleClick\",\"property\":\"adTagUrl\",\"value\":\"" + newAdTag + "\"}");
                             }
                         }
                         if (getConfig().getConfigValueString("proxyData") == null || "".equals(getConfig().getConfigValueString("proxyData"))) {
@@ -247,7 +246,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         return playerController;
     }
 
-    public KTrackActions getTrackManager(){
+    public KTrackActions getTrackManager() {
         return playerController.getTracksManager();
     }
 
@@ -267,7 +266,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
             @Override
             public void handler() {
                 if (eventListeners != null) {
-                    for (KPEventListener listener: eventListeners) {
+                    for (KPEventListener listener : eventListeners) {
                         listener.onKPlayerStateChanged(PlayerViewController.this, KPlayerState.PRE_LOADED);
                     }
                 }
@@ -317,7 +316,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
                 entryJson.put("entryId", entryId);
                 String jsonString = entryJson.toString();
                 playerController.changeMedia();
-                sendNotification("changeMedia",jsonString);
+                sendNotification("changeMedia", jsonString);
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -342,7 +341,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
                 entryJson.put("entryId", entryId);
                 String jsonString = entryJson.toString();
                 playerController.castChangeMedia();
-                sendNotification("changeMedia",jsonString);
+                sendNotification("changeMedia", jsonString);
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -404,8 +403,8 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         return currentURL;
     }
 
-    public void freeze(){
-        if(playerController != null) {
+    public void freeze() {
+        if (playerController != null) {
             playerController.pause();
         }
     }
@@ -465,7 +464,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         if (mWebView != null) {
             try {
                 mWebView.loadUrl("about:blank");
-            }  catch(NullPointerException e){
+            } catch (NullPointerException e) {
                 LOGE(TAG, "WebView NullPointerException caught " + e.getMessage());
             }
             removeView(mWebView);
@@ -473,7 +472,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         }
     }
 
-    public void setActivity( Activity activity ) {
+    public void setActivity(Activity activity) {
         mActivity = activity;
     }
 
@@ -496,12 +495,14 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         }
         mgr.setStreamVolume(AudioManager.STREAM_MUSIC, (int) percent, 0);
     }
-    @SuppressLint("NewApi") private Point getRealScreenSize(){
+
+    @SuppressLint("NewApi")
+    private Point getRealScreenSize() {
         Display display = mActivity.getWindowManager().getDefaultDisplay();
         int realWidth = 0;
         int realHeight = 0;
 
-        if (Build.VERSION.SDK_INT >= 17){
+        if (Build.VERSION.SDK_INT >= 17) {
             //new pleasant way to get real metrics
             DisplayMetrics realMetrics = new DisplayMetrics();
             display.getRealMetrics(realMetrics);
@@ -521,14 +522,15 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
             }
 
         }
-        return new Point(realWidth,realHeight);
+        return new Point(realWidth, realHeight);
     }
 
     /**
      * Sets the player's dimensions. Should be called for any player redraw
      * (for example, in screen rotation, if supported by the main activity)
-     * @param width player's width
-     * @param height player's height
+     *
+     * @param width    player's width
+     * @param height   player's height
      * @param xPadding player's X position
      * @param yPadding player's Y position
      * @deprecated Use {@link #setLayoutParams(ViewGroup.LayoutParams)} instead.
@@ -540,36 +542,35 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         newHeight = height + yPadding;
 
         ViewGroup.LayoutParams lp = getLayoutParams();
-        if ( lp == null ) {
-            lp = new ViewGroup.LayoutParams( newWidth, newHeight );
+        if (lp == null) {
+            lp = new ViewGroup.LayoutParams(newWidth, newHeight);
         } else {
             lp.width = newWidth;
             lp.height = newHeight;
         }
 
         this.setLayoutParams(lp);
-        for ( int i = 0; i < this.getChildCount(); i++ ) {
+        for (int i = 0; i < this.getChildCount(); i++) {
 
             View v = getChildAt(i);
-            if( v == playerController.getPlayer() )
-            {
+            if (v == playerController.getPlayer()) {
                 continue;
             }
             ViewGroup.LayoutParams vlp = v.getLayoutParams();
             vlp.width = newWidth;
-            if ( (!mWvMinimized || !v.equals( mWebView)) ) {//
+            if ((!mWvMinimized || !v.equals(mWebView))) {//
                 vlp.height = newHeight;
             }
             updateViewLayout(v, vlp);
         }
 
 
-        if(mWebView != null) {
+        if (mWebView != null) {
 //            mWebView.loadUrl("javascript:android.onData(NativeBridge.videoPlayer.getControlBarHeight())");
             mWebView.fetchControlsBarHeight(new KControlsView.ControlsBarHeightFetcher() {
                 @Override
                 public void fetchHeight(int controlBarHeight) {
-                    if ( playerController.getPlayer() != null && playerController.getPlayer() instanceof FrameLayout && ((FrameLayout)playerController.getPlayer()).getParent() == PlayerViewController.this ) {
+                    if (playerController.getPlayer() != null && playerController.getPlayer() instanceof FrameLayout && ((FrameLayout) playerController.getPlayer()).getParent() == PlayerViewController.this) {
                         LayoutParams wvLp = (LayoutParams) ((View) playerController.getPlayer()).getLayoutParams();
 
                         if (getPaddingLeft() == 0 && getPaddingTop() == 0) {
@@ -603,7 +604,8 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
      * Sets the player's dimensions. Should be called for any player redraw
      * (for example, in screen rotation, if supported by the main activity)
      * Player's X and Y position will be 0
-     * @param width player's width
+     *
+     * @param width  player's width
      * @param height player's height
      * @deprecated Use {@link #setLayoutParams(ViewGroup.LayoutParams)} instead.
      */
@@ -627,7 +629,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
      * param iFrameUrl- String url
      */
     public void setComponents(String iframeUrl) {
-        if(mWebView == null) {
+        if (mWebView == null) {
             mWebView = new KControlsView(this.mActivity);
             mWebView.setId(R.id.webView_1);
             mWebView.setKControlsViewClient(this);
@@ -637,8 +639,8 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
             mWebView.setLayoutParams(wvLp);
             setBackgroundColor(Color.BLACK);
             playerController = new KPlayerController(this);
-            if (prepareWithConfigurationMode){
-                LOGD(TAG,"setComponents prepareWithConfigurationMode = " + prepareWithConfigurationMode);
+            if (prepareWithConfigurationMode) {
+                LOGD(TAG, "setComponents prepareWithConfigurationMode = " + prepareWithConfigurationMode);
                 playerController.setPrepareWithConfigurationMode(true);
             }
 
@@ -648,7 +650,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
 
         iframeUrl += buildSupportedMediaFormats();
 
-        if( mIframeUrl == null || !mIframeUrl.equals(iframeUrl) ) {
+        if (mIframeUrl == null || !mIframeUrl.equals(iframeUrl)) {
             mIframeUrl = iframeUrl;
 //            Uri uri = Uri.parse(iframeUrl);
 //            if (mConfig.getCacheSize() > 0) {
@@ -668,30 +670,27 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
      * create PlayerView / CastPlayer instance according to cast status
      */
 
-    private void replacePlayerViewChild( View newChild, View oldChild ) {
-        if ( oldChild.getParent().equals( this ) ) {
-            this.removeView( oldChild );
+    private void replacePlayerViewChild(View newChild, View oldChild) {
+        if (oldChild.getParent().equals(this)) {
+            this.removeView(oldChild);
         }
 
-        if ( this.getChildCount() > 1 ) {
+        if (this.getChildCount() > 1) {
             //last child is the KMediaControl webview
-            this.addView( newChild , this.getChildCount() -1, oldChild.getLayoutParams() );
+            this.addView(newChild, this.getChildCount() - 1, oldChild.getLayoutParams());
         }
     }
 
     /**
      * slides with animation according the given values
      *
-     * @param x
-     *            x offset to slide
-     * @param duration
-     *            animation time in milliseconds
+     * @param x        x offset to slide
+     * @param duration animation time in milliseconds
      */
     public void slideView(int x, int duration) {
         this.animate().xBy(x).setDuration(duration)
                 .setInterpolator(new BounceInterpolator());
     }
-
 
 
     // /////////////////////////////////////////////////////////////////////////////////////////////
@@ -702,7 +701,6 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
 //    }
 
     /**
-     *
      * @return duration in seconds
      */
     public double getDurationSec() {
@@ -738,16 +736,13 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
 //    }
 
 
-
-
     /////////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * call js function on NativeBridge.videoPlayer
      *
-     * @param action
-     *            function name
-     * @param eventValues
-     *            function arguments
+     * @param action      function name
+     * @param eventValues function arguments
      */
     private void notifyKPlayer(final String action, final Object[] eventValues) {
         mActivity.runOnUiThread(new Runnable() {
@@ -793,10 +788,9 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
             try {
                 if (args == null) {
                     Class<?>[] params = bridgeMethod.getParameterTypes(); // protect case for params mismatch
-                    if (params.length != 1){
+                    if (params.length != 1) {
                         bridgeMethod.invoke(object);
-                    }
-                    else {
+                    } else {
                         LOGE(TAG, "Error, handleHtml5LibCall Parameters mismatch for method: " + functionName + " number of params = " + params.length);
                     }
                 } else {
@@ -867,7 +861,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
             }
         }
 
-        if(KPlayerListener.ErrorKey.equals(eventName) && !getConfig().isWebDialogEnabled()) {
+        if (KPlayerListener.ErrorKey.equals(eventName) && !getConfig().isWebDialogEnabled()) {
             LOGE(TAG, "blocking Dialog for: " + eventValue);
             if (eventValue.contains("Socket")) {
                 String isExternalAdPlayer = getConfig().getConfigValueString("EmbedPlayer.UseExternalAdPlayer");
@@ -931,7 +925,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         this.registerReadyEvent(new ReadyEventListener() {
             @Override
             public void handler() {
-                ArrayList<HashMap<String, EventListener>> listenerArr = (ArrayList)mPlayerEventsHash.get(event);
+                ArrayList<HashMap<String, EventListener>> listenerArr = (ArrayList) mPlayerEventsHash.get(event);
                 if (listenerArr == null) {
                     listenerArr = new ArrayList();
                 }
@@ -946,7 +940,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         });
     }
 
-    public void removeKPlayerEventListener(String event,String eventID) {
+    public void removeKPlayerEventListener(String event, String eventID) {
         if (mPlayerEventsHash == null) {
             return;
         }
@@ -955,7 +949,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
             return;
         }
         ArrayList<HashMap<String, EventListener>> temp = new ArrayList<HashMap<String, EventListener>>(listenerArr);
-        for (HashMap<String, EventListener> hash: temp) {
+        for (HashMap<String, EventListener> hash : temp) {
             if (hash.keySet().toArray()[hash.keySet().size() - 1].equals(eventID)) {
                 listenerArr.remove(hash);
             }
@@ -978,7 +972,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         mWebView.evaluate(expression, expressionID);
     }
 
-    public void sendNotification(String notificationName,@Nullable String params) {
+    public void sendNotification(String notificationName, @Nullable String params) {
         if (mWebView != null) {
             if (notificationName == null) {
                 notificationName = "null";
@@ -1074,7 +1068,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
                     break;
                 case doubleClickRequestAds:
                     String useExternalAdPlayer = getConfig().getConfigValueString("EmbedPlayer.UseExternalAdPlayer");
-                    if("true".equals(useExternalAdPlayer)) {
+                    if ("true".equals(useExternalAdPlayer)) {
                         return;
                     }
                     LOGD(TAG, "IMA doubleClickRequestAds initialize:" + attributeValue);
@@ -1092,7 +1086,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
                     break;
                 case textTrackSelected:
                     LOGD(TAG, "textTrackSelected");
-                    if (attributeValue == null){
+                    if (attributeValue == null) {
                         return;
                     }
                     if (mCastProvider != null) {
@@ -1137,7 +1131,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
                 listener.onKPlayerError(this, new KPError(attributeValue));
             }
         }
-        if (mOnKPErrorEventListener != null){
+        if (mOnKPErrorEventListener != null) {
             mOnKPErrorEventListener.onKPlayerError(this, new KPError(attributeValue));
         }
     }
@@ -1149,12 +1143,12 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         } catch (UnsupportedEncodingException e) {
             return;
         }
-        switchTrack(TrackType.VIDEO,index);
+        switchTrack(TrackType.VIDEO, index);
     }
 
     private void switchAudioTrack(String index) {
 
-        switchTrack(TrackType.AUDIO,index);
+        switchTrack(TrackType.AUDIO, index);
     }
 
     private void selectClosedCaptions(String index) {
@@ -1183,35 +1177,35 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         getTrackManager().switchTrack(trackType, trackIndex);
     }
 
-    public void setTracksEventListener(KTrackActions.EventListener tracksEventListener){
+    public void setTracksEventListener(KTrackActions.EventListener tracksEventListener) {
         playerController.setTracksEventListener(tracksEventListener);
     }
 
-    public void removeTracksEventListener(){
+    public void removeTracksEventListener() {
         playerController.setTracksEventListener(null);
     }
 
-    public void setVideoTrackEventListener(KTrackActions.VideoTrackEventListener videoTrackEventListener){
+    public void setVideoTrackEventListener(KTrackActions.VideoTrackEventListener videoTrackEventListener) {
         playerController.setVideoTrackEventListener(videoTrackEventListener);
     }
 
-    public void removeVideoTrackEventListener(){
+    public void removeVideoTrackEventListener() {
         playerController.setVideoTrackEventListener(null);
     }
 
-    public void setAudioTrackEventListener(KTrackActions.AudioTrackEventListener audioTrackEventListener){
+    public void setAudioTrackEventListener(KTrackActions.AudioTrackEventListener audioTrackEventListener) {
         playerController.setAudioTrackEventListener(audioTrackEventListener);
     }
 
-    public void removeAusioTrackEventListener(){
+    public void removeAusioTrackEventListener() {
         playerController.setAudioTrackEventListener(null);
     }
 
-    public void setTextTrackEventListener(KTrackActions.TextTrackEventListener textTrackEventListener){
+    public void setTextTrackEventListener(KTrackActions.TextTrackEventListener textTrackEventListener) {
         playerController.setTextTrackEventListener(textTrackEventListener);
     }
 
-    public void removeTextTrackEventListener(){
+    public void removeTextTrackEventListener() {
         playerController.setTextTrackEventListener(null);
     }
 
@@ -1219,7 +1213,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         mIsJsCallReadyRegistration = true;
         if (mCallBackReadyRegistrations != null) {
             ArrayList<ReadyEventListener> temp = new ArrayList<ReadyEventListener>(mCallBackReadyRegistrations);
-            for (ReadyEventListener listener: temp) {
+            for (ReadyEventListener listener : temp) {
                 listener.handler();
                 mCallBackReadyRegistrations.remove(listener);
             }
@@ -1235,8 +1229,8 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
             String params = arguments[1];
             ArrayList<HashMap<String, EventListener>> listenerArr = mPlayerEventsHash.get(eventName);
             if (listenerArr != null) {
-                for (HashMap<String, EventListener> hash: listenerArr) {
-                    ((EventListener)hash.values().toArray()[hash.values().size() - 1]).handler(eventName, params);
+                for (HashMap<String, EventListener> hash : listenerArr) {
+                    ((EventListener) hash.values().toArray()[hash.values().size() - 1]).handler(eventName, params);
                 }
             }
         }
@@ -1284,13 +1278,13 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         newUiOptions ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
 
         if (isFullScreen) {
-            LOGD(TAG,"Set to onOpenFullScreen");
+            LOGD(TAG, "Set to onOpenFullScreen");
             sendNotification("onOpenFullScreen", null);
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
                 mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                 mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 
-            }else{
+            } else {
                 mActivity.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
             }
             if (mActivity != null) {
@@ -1299,12 +1293,12 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
                 }
             }
         } else {
-            LOGD(TAG,"Set to onCloseFullScreen");
+            LOGD(TAG, "Set to onCloseFullScreen");
             sendNotification("onCloseFullScreen", null);
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
                 mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
                 mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            }else{
+            } else {
                 mActivity.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
             }
             ((AppCompatActivity) mActivity).getSupportActionBar().show();
@@ -1327,7 +1321,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
             e.printStackTrace();
         }
         LOGD(TAG, "sendCCRecieverMessage : " + decodeArgs);
-        ((KCastProviderV3Impl)mCastProvider).sendMessage(decodeArgs);
+        ((KCastProviderV3Impl) mCastProvider).sendMessage(decodeArgs);
     }
 
     private void loadCCMedia() {
@@ -1356,8 +1350,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
                     // if (!mShareListener.onShare(videoUrl, type, videoName)){
                     ShareManager.share(nativeActionParams, mActivity);
                     //}
-                }
-                else{
+                } else {
                     share(nativeActionParams);
                 }
                 return;
