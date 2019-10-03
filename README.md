@@ -232,3 +232,27 @@ Throughout the izsession our service is recognizing if user is allowed to play c
 String izsession = "00000000-0000-0000-0000-000000000000"; // Replace with your izsession
 config.addConfig("izsession", izsession);
 ```
+
+###Play audio in background:
+In order to play audio in background, the activity that uses the PlayerViewController must have the _`onPause()`_ and _`onResume()`_ override methods implemented in this way:
+
+Implementation example:
+```
+    private boolean backgroundAudioEnabled = true;
+    
+    @Override
+    protected void onPause() {
+        if (mPlayer != null && !backgroundAudioEnabled) {
+            mPlayer.releaseAndSavePosition(true);
+        }
+        super.onPause();
+    }
+    
+    @Override
+    protected void onResume() {
+        if (mPlayer != null && !backgroundAudioEnabled) {
+            mPlayer.resumePlayer();
+        }
+        super.onResume();
+    }
+```
