@@ -1,6 +1,6 @@
 package com.kaltura.playersdk.casting;
 
-import android.support.v7.media.MediaRouter;
+import androidx.mediarouter.media.MediaRouter;
 
 import com.google.android.gms.cast.CastDevice;
 

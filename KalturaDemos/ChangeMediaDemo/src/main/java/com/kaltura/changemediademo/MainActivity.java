@@ -5,9 +5,9 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
+import androidx.core.app.FragmentManager;
+import androidx.core.app.FragmentTransaction;
+import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
 import android.webkit.WebView;
