@@ -62,6 +62,41 @@ Now, you are linked to the playerSDK by reference. Be sure that you cloned the p
 
 Make sure that you cloned the **_kaltura-android-sdk_** project to the same folder of your project, if you prefer to clone it else where, you should update the _**`settings.gradle`**_.
 
+
+Gradle implementation
+=====
+
+If you are using Gradle to get libraries into your build, you will need to:
+
+Step 1. Add the StreamAMG maven repository to the list of repositories in Project build.gradle:
+
+```
+allprojects {
+    repositories {
+        ...
+        maven {
+            url "https://api.bitbucket.org/2.0/repositories/sukdev/kaltura-android-sdk/src/releases"
+        }
+    }
+}
+```
+
+Step 2. Add the dependency information in Module app build.gradle:
+
+```
+implementation 'com.streamamg:playersdk:2.7.0'
+```
+
+If you are not using AndroidX in your app, you should exclude the following module to avoid incompatibilities:
+
+```
+implementation 'com.streamamg:playersdk:2.7.0', {
+    exclude group: 'androidx.core', module: 'core'
+    exclude group: 'androidx.media', module:'media'
+}
+```
+
+
 API Overview
 =====
 
