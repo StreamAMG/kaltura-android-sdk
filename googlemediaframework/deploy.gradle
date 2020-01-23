@@ -1,0 +1,59 @@
+apply plugin: 'maven'
+
+Properties local = new Properties()
+local.load(project.rootProject.file('local.properties').newDataInputStream())
+
+configurations {
+    deployerJar
+}
+
+dependencies {
+    deployerJar "ar.com.synergian:wagon-git:0.3.0"
+}
+
+uploadArchives {
+    configuration = configurations.archives
+    repositories.mavenDeployer {
+        if (project.hasProperty('GROUP')) {
+            pom.groupId = GROUP
+            pom.artifactId = GMF_ARTIFACT_ID
+            pom.version = GMF_VERSION_CODE
+            configuration = configurations.deployerJar
+            repository(url: 'git:releases://https://' + local.getProperty('USERNAME') + ':' + local.getProperty('PASSWORD') + '@bitbucket.org/' + COMPANY + '/' + REPOSITORY_NAME + '.git')
+            snapshotRepository(url: 'git:snapshots://https://' + local.getProperty('USERNAME') + ':' + local.getProperty('PASSWORD') + '@bitbucket.org/' + COMPANY + '/' + REPOSITORY_NAME + '.git')
+
+            pom.project {
+                name GMF_POM_NAME
+                packaging POM_PACKAGING
+                description GMF_POM_DESCRIPTION
+                url REPOSITORY_URL
+                scm {
+                    url REPOSITORY_URL
+                    connection 'https://' + local.getProperty('USERNAME') + '@bitbucket.org/' + COMPANY + '/' + REPOSITORY_NAME + '.git'
+                    developerConnection 'https://' + local.getProperty('USERNAME') + '@bitbucket.org/' + COMPANY + '/' + REPOSITORY_NAME + '.git'
+                }
+                licenses {
+                    license {
+                        name "The Apache Software License, Version 2.0"
+                        url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                        distribution GMF_POM_NAME
+                    }
+                }
+                developers {
+                    developer {
+                        id local.getProperty('USERNAME')
+                        name GMF_POM_NAME
+                        email local.getProperty('DEV_EMAIL')
+                    }
+                }
+            }
+        }
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        maven { url "https://raw.github.com/synergian/wagon-git/releases"}
+    }
+}

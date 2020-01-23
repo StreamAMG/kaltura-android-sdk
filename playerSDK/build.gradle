@@ -23,6 +23,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+    lintOptions {
+        abortOnError false
+    }
 
     packagingOptions {
         exclude 'jsr305_annotations/Jsr305_annotations.gwt.xml'
@@ -47,3 +50,5 @@ task sourcesJar(type: Jar) {
 artifacts {
     archives sourcesJar
 }
+
+apply from: 'deploy.gradle'

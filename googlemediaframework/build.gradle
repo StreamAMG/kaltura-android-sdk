@@ -27,6 +27,8 @@ android {
         targetSdkVersion 28
         versionCode 1
         versionName '1.0'
+        group = 'com.streamamg'
+        version = '1.0.0'
     }
     buildTypes {
         release {
@@ -52,3 +54,5 @@ task sourcesJar(type: Jar) {
 artifacts {
     archives sourcesJar
 }
+
+apply from: 'deploy.gradle'
