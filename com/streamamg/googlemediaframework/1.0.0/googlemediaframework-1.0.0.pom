@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.streamamg</groupId>
+  <artifactId>googlemediaframework</artifactId>
+  <version>1.0.0</version>
+  <packaging>aar</packaging>
+  <name>Kaltura-Android-SDK GMF</name>
+  <description>Player SDK Native Android GoogleMediaFramework</description>
+  <url>https://bitbucket.org/sukdev/kaltura-android-sdk.git</url>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>Kaltura-Android-SDK GMF</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>stefanorussello_streamamg</id>
+      <name>Kaltura-Android-SDK GMF</name>
+      <email>stefano.russello@streamamg.com</email>
+    </developer>
+  </developers>
+  <scm>
+    <connection>https://stefanorussello_streamamg@bitbucket.org/sukdev/kaltura-android-sdk.git</connection>
+    <developerConnection>https://stefanorussello_streamamg@bitbucket.org/sukdev/kaltura-android-sdk.git</developerConnection>
+    <url>https://bitbucket.org/sukdev/kaltura-android-sdk.git</url>
+  </scm>
+  <dependencies>
+    <dependency>
+      <groupId>com.google.android.exoplayer</groupId>
+      <artifactId>exoplayer</artifactId>
+      <version>r1.5.16</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>
