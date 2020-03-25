@@ -718,15 +718,19 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
         ((View)player).setVisibility(View.INVISIBLE);
         // Add adPlayer view
         adPlayerContainer = new FrameLayout(mActivity.get());
-        ViewGroup.LayoutParams lp = parentViewController.getLayoutParams();
-        lp = new ViewGroup.LayoutParams(lp.width, lp.height);
-        parentViewController.addView(adPlayerContainer, parentViewController.getChildCount() - 1, lp);
+//        ViewGroup.LayoutParams lp = parentViewController.getLayoutParams();
+//        lp = new ViewGroup.LayoutParams(lp.width, lp.height);
+        parentViewController.addView(adPlayerContainer, parentViewController.getChildCount() - 1); //, lp);
+        // Center Ad Player in parent view
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)adPlayerContainer.getLayoutParams();
+        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+        adPlayerContainer.setLayoutParams(layoutParams);
 
         // Add IMA UI KMediaControl view
         mAdControls = new RelativeLayout(parentViewController.getContext());
-        ViewGroup.LayoutParams curLP = parentViewController.getLayoutParams();
-        ViewGroup.LayoutParams controlsLP = new ViewGroup.LayoutParams(curLP.width, curLP.height);
-        parentViewController.addView(mAdControls, controlsLP);
+//        ViewGroup.LayoutParams curLP = parentViewController.getLayoutParams();
+//        ViewGroup.LayoutParams controlsLP = new ViewGroup.LayoutParams(curLP.width, curLP.height);
+        parentViewController.addView(mAdControls); //, controlsLP);
 
         // Initialize IMA manager
         imaManager = new KIMAManager(mActivity.get(), adPlayerContainer, mAdControls, adTagURL, mAdMimeType, mAdPreferredBitrate);
