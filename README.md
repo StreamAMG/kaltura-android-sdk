@@ -84,13 +84,13 @@ allprojects {
 Step 2. Add the dependency information in Module app build.gradle:
 
 ```
-implementation 'com.streamamg:playersdk:2.7.0'
+implementation 'com.streamamg:playersdk:2.7.1'
 ```
 
 If you are not using AndroidX in your app, you should exclude the following module to avoid incompatibilities:
 
 ```
-implementation 'com.streamamg:playersdk:2.7.0', {
+implementation 'com.streamamg:playersdk:2.7.1', {
     exclude group: 'androidx.core', module: 'core'
     exclude group: 'androidx.media', module:'media'
 }
@@ -330,3 +330,12 @@ In your `AndroidManifest` file add the following line in your `application` tag
 ```
 android:usesCleartextTraffic="true"
 ```
+
+Change Log:
+===========
+
+All notable changes to this project will be documented in this section.
+
+### 2.7.1
+
+* Google Ads fix
