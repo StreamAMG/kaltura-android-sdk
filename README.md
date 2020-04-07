@@ -331,6 +331,16 @@ In your `AndroidManifest` file add the following line in your `application` tag
 android:usesCleartextTraffic="true"
 ```
 
+### How to enable Google Ad ###
+
+Add the following configs:
+
+```
+    config.addConfig("doubleClick.plugin", "true");
+    config.addConfig("doubleClick.leadWithFlash", "false");
+    config.addConfig("doubleClick.adTagUrl", "tag-url");
+```
+
 Change Log:
 ===========
 
