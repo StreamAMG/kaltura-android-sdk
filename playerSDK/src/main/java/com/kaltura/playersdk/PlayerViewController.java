@@ -212,6 +212,10 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         }
     }
 
+    public void playFromCurrentPosition() {
+        play();
+    }
+
     // trigger timeupdate events
     public interface EventListener {
         void handler(String eventName, String params);
@@ -816,7 +820,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
     //
     @Override
     public void eventWithValue(KPlayer player, String eventName, String eventValue) {
-        LOGD(TAG, "EventWithValue Name: " + eventName + " Value: " + eventValue);
+       LOGD(TAG, "EventWithValue Name: " + eventName + " Value: " + eventValue);
         KStringUtilities event = new KStringUtilities(eventName);
         KPlayerState kState = KPlayerState.getStateForEventName(eventName);
         if ((isMediaChanged && kState == KPlayerState.READY && getConfig().isAutoPlay())) {
@@ -1121,6 +1125,10 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
                     break;
             }
         }
+    }
+
+    public void setPlaybackTime(double time){
+        playerController.setCurrentPlaybackTime((float)time);
     }
 
 
