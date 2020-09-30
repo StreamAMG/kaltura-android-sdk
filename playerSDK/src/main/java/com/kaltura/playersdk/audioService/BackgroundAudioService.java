@@ -33,10 +33,12 @@ public class BackgroundAudioService extends Service implements KPErrorEventListe
     PlayerViewController mPlayerView = null;
 
 
-    public String SERVICE_URL = "http://{your_mp}/";
-    public String PARTNER_ID = "{partner_id}";
-    public String UI_CONF_ID = "{ui_conf_id}";
-    public String ENTRY_ID = "{entry_id}";
+    public String SERVICE_URL = "";
+    public String PARTNER_ID = "";
+    public String UI_CONF_ID = "";
+    public String ENTRY_ID = "";
+    public String KS = "";
+    public String izsession = "";
 
     int counter = 0;
 
@@ -47,13 +49,26 @@ public class BackgroundAudioService extends Service implements KPErrorEventListe
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d("WRD", "service onBind");
-        Toast.makeText(this, "Service OnBind()", Toast.LENGTH_LONG).show();
         return mBinder;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d("WRD","onStartCommand executed with startId: $startId");
+        if (intent != null) {
+            String action = intent.getAction();
+            Log.d("WRD","using an intent with action " + action);
+//            switch (action) {
+//                Actions.START.name -> startService()
+//                Actions.STOP.name -> stopService()
+//                else -> log("This should never happen. No action in the received intent")
+//            }
+  //          startService();
+        } else {
+            Log.d("WRD",
+                    "with a null intent. It has been probably restarted by the system."
+            );
+        }
         return Service.START_STICKY;
 
     }
@@ -62,20 +77,18 @@ public class BackgroundAudioService extends Service implements KPErrorEventListe
     public void onDestroy() {
         // TODO Auto-generated method stub
         super.onDestroy();
-        Toast.makeText(this, "Service Destroyed ", Toast.LENGTH_SHORT).show();
+        if (mPlayerView != null){
+            mPlayerView.removePlayer();
+        }
     }
 
     @Override
     public void onStart(Intent intent, int startId) {
-        // TODO Auto-generated method stub
         super.onStart(intent, startId);
-        Log.d("WRD", "service onStart: " + counter);
-     //   Toast.makeText(this, "Service Started ", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        // TODO Auto-generated method stub
         return super.onUnbind(intent);
     }
 
@@ -113,7 +126,7 @@ public class BackgroundAudioService extends Service implements KPErrorEventListe
                 .setPriority(NotificationManager.IMPORTANCE_MIN)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .build();
-        startForeground(2, notification);
+        startForeground(1, notification);
     }
 
     public void setupPlayer(Activity activity, PlayerViewController player){
@@ -125,25 +138,18 @@ public class BackgroundAudioService extends Service implements KPErrorEventListe
 
 
     private PlayerViewController getPlayer(Activity activity, PlayerViewController player) {
-     //   if (mPlayerView == null) {
-        KPPlayerConfig config;
         boolean shouldResume = false;
         double playback = 0.0f;
         if (mPlayerView != null) {
-            config = mPlayerView.getConfig();
-            mPlayerView.releaseAndSavePosition(true);
+//            mPlayerView.releaseAndSavePosition(true);
             playback = mPlayerView.getCurrentPlaybackTime();
             shouldResume = true;
-        } else {
-            config = new KPPlayerConfig(SERVICE_URL, UI_CONF_ID, PARTNER_ID).setEntryId(ENTRY_ID);
         }
 
-        Log.d("WRD", "Config: " + config);
 
             mPlayerView = player;
 
             Log.d("WRD", "service setUpPlayer");
-    //    }
             if (mPlayerView != null) {
                 mPlayerView.loadPlayerIntoActivity(activity);
 
@@ -151,17 +157,27 @@ public class BackgroundAudioService extends Service implements KPErrorEventListe
                     SERVICE_URL = "http://" + SERVICE_URL;
                 }
 
+                KPPlayerConfig config = new KPPlayerConfig(SERVICE_URL, UI_CONF_ID, PARTNER_ID).setEntryId(ENTRY_ID);
 
-//                if (KS.length() > 0) {
-//                    config.setKS(KS);
-//                }
-//                if (izsession.length() > 0) {
-//                    config.addConfig("izsession", izsession);
-//                }
-// CONFIG GOES HERE!
+                if (KS.length() > 0) {
+                    config.setKS(KS);
+                }
+                if (izsession.length() > 0) {
+                    config.addConfig("izsession", izsession);
+                }
+
+
+
+
                 // Set your flashvars here
                 config.addConfig("chromecast.receiverLogo", "true");
                 config.addConfig("fullScreenBtn.plugin", "false");
+
+                config.addConfig("doubleClick.plugin", "true");
+                config.addConfig("doubleClick.leadWithFlash", "false");
+                config.addConfig("doubleClick.adTagUrl", "https://pubads.g.doubleclick.net/gampad/live/ads?iu=/21707781519/LiveScore_App/LiveScore_App_TV/LiveScore_App_TV_LiveStream&description_url=http%3A%2F%2Fwww.livescore.com&tfcd=0&npa=0&sz=300x400%7C300x415%7C320x50%7C320x480%7C400x300%7C420x315%7C480x480%7C554x416%7C640x480%7C728x90&cust_params=LS_Match%3D8-207681%26LS_Sport%3Dsoccer%26LS_League%3DLeague%2BC%2BGroup%2B1%26LS_Team%3DCyprus%2CLuxembourg%26LS_SubSection%3Duefa-nations-league%26LS_Environment%3DTesting&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=");
+
+
 
                 mPlayerView.initWithConfiguration(config);
 if (shouldResume){
