@@ -1,4 +1,4 @@
-package com.kaltura.playersdk.audioService;
+package com.kaltura.playersdk.services;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,9 +14,9 @@ public class Restarter extends BroadcastReceiver {
         Toast.makeText(context, "Service restarted", Toast.LENGTH_SHORT).show();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(new Intent(context, BackgroundAudioService.class));
+            context.startForegroundService(new Intent(context, BackgroundPlayerService.class));
         } else {
-            context.startService(new Intent(context, BackgroundAudioService.class));
+            context.startService(new Intent(context, BackgroundPlayerService.class));
         }
     }
 }

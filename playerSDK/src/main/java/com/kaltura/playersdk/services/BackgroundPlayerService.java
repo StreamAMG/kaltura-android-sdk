@@ -1,4 +1,4 @@
-package com.kaltura.playersdk.audioService;
+package com.kaltura.playersdk.services;
 
 import android.app.Activity;
 import android.app.Notification;
@@ -13,7 +13,6 @@ import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 import android.webkit.WebView;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
@@ -28,7 +27,7 @@ import com.kaltura.playersdk.events.KPlayerState;
 import com.kaltura.playersdk.types.KPError;
 import com.kaltura.playersdk.utils.LogUtils;
 
-public class BackgroundAudioService extends Service implements KPErrorEventListener, KPPlayheadUpdateEventListener, KPStateChangedEventListener, KPFullScreenToggledEventListener {
+public class BackgroundPlayerService extends Service implements KPErrorEventListener, KPPlayheadUpdateEventListener, KPStateChangedEventListener, KPFullScreenToggledEventListener {
 
     PlayerViewController mPlayerView = null;
 
@@ -136,20 +135,16 @@ public class BackgroundAudioService extends Service implements KPErrorEventListe
         getPlayer(activity, player);
     }
 
-
     private PlayerViewController getPlayer(Activity activity, PlayerViewController player) {
         boolean shouldResume = false;
         double playback = 0.0f;
         if (mPlayerView != null) {
-//            mPlayerView.releaseAndSavePosition(true);
             playback = mPlayerView.getCurrentPlaybackTime();
             shouldResume = true;
         }
 
-
             mPlayerView = player;
 
-            Log.d("WRD", "service setUpPlayer");
             if (mPlayerView != null) {
                 mPlayerView.loadPlayerIntoActivity(activity);
 
@@ -165,9 +160,6 @@ public class BackgroundAudioService extends Service implements KPErrorEventListe
                 if (izsession.length() > 0) {
                     config.addConfig("izsession", izsession);
                 }
-
-
-
 
                 // Set your flashvars here
                 config.addConfig("chromecast.receiverLogo", "true");
@@ -241,9 +233,9 @@ Log.d("WRD", "New state = " + state);
             Log.d("WRD", "creating binder");
         }
 
-       public BackgroundAudioService getService() {
+       public BackgroundPlayerService getService() {
            Log.d("WRD", "service getService");
-            return BackgroundAudioService.this;
+            return BackgroundPlayerService.this;
         }
     }
 

@@ -15,7 +15,7 @@
 
 
         <receiver
-            android:name=".audioService.Restarter"
+            android:name=".services.Restarter"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -27,7 +27,7 @@
             android:name="com.kaltura.playersdk.BrowserActivity"
             android:label="@string/title_activity_browser" >
         </activity>
-        <service android:name=".audioService.BackgroundAudioService"/>
+        <service android:name=".services.BackgroundPlayerService"/>
     </application>
 
 </manifest>
