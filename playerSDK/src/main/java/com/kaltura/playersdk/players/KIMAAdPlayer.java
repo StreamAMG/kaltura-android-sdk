@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.NonNull;
-
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -23,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static com.kaltura.playersdk.utils.LogUtils.LOGD;
 
@@ -47,11 +48,48 @@ public class KIMAAdPlayer implements VideoAdPlayer, ExoplayerWrapper.PlaybackLis
             new ArrayList<VideoAdPlayerCallback>(1);
     private static final long PLAYHEAD_UPDATE_INTERVAL = 200;
 
+    AdMediaInfo mMediaInfo;
+    private Timer timer;
+
     @NonNull
     private Handler mPlaybackTimeReporter = new Handler(Looper.getMainLooper());
 
 
     // [START VideoAdPlayer region]
+//    @Override
+//    public void playAd() {
+//        if (mAdPlayer != null) {
+//            mAdPlayer.play();
+//            startPlaybackTimeReporter();
+//        }
+//    }
+//
+//    @Override
+//    public void loadAd(String s) {
+//        setAdPlayerSource(s);
+//    }
+//
+//    @Override
+//    public void stopAd() {
+//        if (mAdPlayer != null) {
+//            mAdPlayer.pause();
+//        }
+//    }
+//
+//    @Override
+//    public void pauseAd() {
+//        if (mAdPlayer != null) {
+//            stopPlaybackTimeReporter();
+//            mAdPlayer.pause();
+//        }
+//    }
+//
+//    @Override
+//    public void resumeAd() {
+//        if (mAdPlayer != null) {
+//            mAdPlayer.play();
+//        }
+//    }
 
     @Override
     public void addCallback(VideoAdPlayerCallback videoAdPlayerCallback) {
@@ -73,13 +111,13 @@ public class KIMAAdPlayer implements VideoAdPlayer, ExoplayerWrapper.PlaybackLis
 
     public void pauseAdCallback(){
         for (VideoAdPlayer.VideoAdPlayerCallback callback : mAdCallbacks) {
-            callback.onPause(null);
+            callback.onPause(mMediaInfo);
         }
     }
 
     public void resumeAdCallback(){
         for (VideoAdPlayer.VideoAdPlayerCallback callback : mAdCallbacks) {
-            callback.onResume(null);
+            callback.onResume(mMediaInfo);
         }
     }
 
@@ -122,7 +160,7 @@ public class KIMAAdPlayer implements VideoAdPlayer, ExoplayerWrapper.PlaybackLis
                         mListener.adDurationUpdate((float) mAdPlayer.getDuration() / 1000);
                     }
                     for (VideoAdPlayer.VideoAdPlayerCallback callback : mAdCallbacks) {
-                        callback.onPlay(null);
+                        callback.onPlay(mMediaInfo);
                     }
                 } else if (currentPosition > 0) {
                     mAdPlayer.seek(currentPosition, true);
@@ -133,14 +171,14 @@ public class KIMAAdPlayer implements VideoAdPlayer, ExoplayerWrapper.PlaybackLis
                     mAdPlayer.play();
                 } else {
                     for (VideoAdPlayer.VideoAdPlayerCallback callback : mAdCallbacks) {
-                        callback.onPause(null);
+                        callback.onPause(mMediaInfo);
                     }
                 }
                 break;
             case ExoPlayer.STATE_ENDED:
                 removeAd();
                 for (VideoAdPlayer.VideoAdPlayerCallback callback : mAdCallbacks) {
-                    callback.onEnded(null);
+                    callback.onEnded(mMediaInfo);
                 }
                 mReadiness = KState.IDLE;
                 break;
@@ -178,7 +216,7 @@ public class KIMAAdPlayer implements VideoAdPlayer, ExoplayerWrapper.PlaybackLis
     @Override
     public void onError(Exception e) {
         for (VideoAdPlayer.VideoAdPlayerCallback callback : mAdCallbacks) {
-            callback.onError(null);
+            callback.onError(mMediaInfo);
         }
     }
 
@@ -248,12 +286,13 @@ public class KIMAAdPlayer implements VideoAdPlayer, ExoplayerWrapper.PlaybackLis
 
     @Override
     public void loadAd(AdMediaInfo adMediaInfo, AdPodInfo adPodInfo) {
+        mMediaInfo = adMediaInfo;
         setAdPlayerSource(adMediaInfo.getUrl());
     }
 
     @Override
     public void playAd(AdMediaInfo adMediaInfo) {
-
+        startTracking();
         if (mAdPlayer != null) {
             mAdPlayer.play();
             startPlaybackTimeReporter();
@@ -262,26 +301,51 @@ public class KIMAAdPlayer implements VideoAdPlayer, ExoplayerWrapper.PlaybackLis
 
     @Override
     public void pauseAd(AdMediaInfo adMediaInfo) {
-        if (mAdPlayer != null) {
-            stopPlaybackTimeReporter();
-            mAdPlayer.pause();
-        }
+        stopTracking();
     }
 
     @Override
     public void stopAd(AdMediaInfo adMediaInfo) {
-        if (mAdPlayer != null) {
-            mAdPlayer.pause();
-        }
+        stopTracking();
     }
-
 
     public void release() {
         if (mAdPlayer != null) {
             mAdPlayer.pause();
             mAdPlayer.moveSurfaceToBackground();
         }
+//        mAdUIContainer = null;
+//        mPlayerContainer = null;
     }
+
+    private void startTracking() {
+        if (timer != null) {
+            return;
+        }
+        timer = new Timer();
+        TimerTask updateTimerTask =
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        // Tell IMA the current video progress. A better implementation would be
+                        // reactive to events from the media player, instead of polling.
+                        for (VideoAdPlayer.VideoAdPlayerCallback callback : mAdCallbacks) {
+                            callback.onAdProgress(mMediaInfo, getAdProgress());
+                        }
+                    }
+                };
+        int initialDelayMs = 250;
+        int pollingTimeMs = 250;
+        timer.schedule(updateTimerTask, pollingTimeMs, initialDelayMs);
+    }
+
+    private void stopTracking() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+    }
+
 
     private Video.VideoType getVideoType() {
         String videoFileName = Uri.parse(mSrc).getLastPathSegment();
@@ -295,5 +359,6 @@ public class KIMAAdPlayer implements VideoAdPlayer, ExoplayerWrapper.PlaybackLis
             default:
                 return Video.VideoType.OTHER;
         }
+
     }
 }
