@@ -14,6 +14,7 @@ import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
 import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
+import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.api.UiElement;
 import com.google.ads.interactivemedia.v3.api.player.ContentProgressProvider;
 import com.kaltura.playersdk.interfaces.KIMAManagerListener;
@@ -78,7 +79,10 @@ public class KIMAManager implements AdErrorEvent.AdErrorListener,
 
         // Create an AdsLoader.
         mSdkFactory = ImaSdkFactory.getInstance();
-        mAdsLoader = mSdkFactory.createAdsLoader(context);
+        ImaSdkSettings settings =  ImaSdkFactory.getInstance().createImaSdkSettings();
+        settings.setLanguage("en");
+        mAdDisplayContainer = mSdkFactory.createAdDisplayContainer(adUiContainer, mIMAPlayer);
+        mAdsLoader = mSdkFactory.createAdsLoader(context, settings, mAdDisplayContainer);
         mAdsLoader.addAdErrorListener(this);
         mAdsLoader.addAdsLoadedListener(this);
     }
@@ -122,13 +126,13 @@ public class KIMAManager implements AdErrorEvent.AdErrorListener,
      */
     private void requestAds(String adTagUrl, ContentProgressProvider contentProgressProvider) {
         LOGD(TAG, "Start requestAds adTagUrl = " + adTagUrl);
-        mAdDisplayContainer = mSdkFactory.createAdDisplayContainer();
-        mAdDisplayContainer.setPlayer(mIMAPlayer);
-        mAdDisplayContainer.setAdContainer(mIMAPlayer.getAdUIContainer());
+//        mAdDisplayContainer = mSdkFactory.createAdDisplayContainer();
+//        mAdDisplayContainer.setPlayer(mIMAPlayer);
+//        mAdDisplayContainer.setAdContainer(mIMAPlayer.getAdUIContainer());
         // Create the ads request.
         AdsRequest request = mSdkFactory.createAdsRequest();
         request.setAdTagUrl(adTagUrl);
-        request.setAdDisplayContainer(mAdDisplayContainer);
+        // request.setAdDisplayContainer(mAdDisplayContainer);
         request.setContentProgressProvider(contentProgressProvider);
 
         // Request the ad. After the ad is loaded, onAdsManagerLoaded() will be called.
