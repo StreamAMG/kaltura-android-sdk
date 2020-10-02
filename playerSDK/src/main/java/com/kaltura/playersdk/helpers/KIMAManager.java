@@ -149,6 +149,7 @@ public class KIMAManager implements AdErrorEvent.AdErrorListener,
         // Attach event and error event listeners.
         mAdsManager.addAdErrorListener(this);
         mAdsManager.addAdEventListener(this);
+
         AdsRenderingSettings renderingSettings = ImaSdkFactory.getInstance().createAdsRenderingSettings();
         List<String> mimeTypes = new ArrayList<>();
         if (mAdMimeType == null) {
@@ -159,7 +160,6 @@ public class KIMAManager implements AdErrorEvent.AdErrorListener,
         //mimeTypes.add("application/x-mpegURL");
         //mimeTypes.add("video/mp4");
         //mimeTypes.add("video/3gpp");
-
         renderingSettings.setMimeTypes(mimeTypes);
         renderingSettings.setUiElements(Collections.<UiElement>emptySet());
 
@@ -266,6 +266,11 @@ public class KIMAManager implements AdErrorEvent.AdErrorListener,
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void skipAd() {
+        mAdsManager.discardAdBreak();
     }
 
     public void destroy() {
