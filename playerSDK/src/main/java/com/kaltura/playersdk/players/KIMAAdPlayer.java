@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.NonNull;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -223,6 +224,7 @@ public class KIMAAdPlayer implements VideoAdPlayer, ExoplayerWrapper.PlaybackLis
     public interface KIMAAdPlayerEvents {
         void adDidProgress(float toTome, float totalTime);
         void adDurationUpdate(float totalTime);
+        void skipAd();
     }
 
     public KIMAAdPlayer(Activity activity, FrameLayout playerContainer, ViewGroup adUIContainer, String adMimeType, int adPreferredBitrate) {
@@ -254,13 +256,20 @@ public class KIMAAdPlayer implements VideoAdPlayer, ExoplayerWrapper.PlaybackLis
 
     private void setAdPlayerSource(String src) {
         mSrc = src;
-        Video source = new Video(src.toString(), getVideoType());
-        mAdPlayer = new SimpleVideoPlayer(mActivity, mPlayerContainer, source, "", true);
-        mAdPlayer.addPlaybackListener(this);
-        mPlayerContainer.setVisibility(View.VISIBLE);
-        mAdPlayer.moveSurfaceToForeground();
-        mAdPlayer.disableSeeking();
-        mAdPlayer.hideTopChrome();
+        Video.VideoType type = getVideoType();
+        if (type != null) {
+            Video source = new Video(src.toString(), type);
+            mAdPlayer = new SimpleVideoPlayer(mActivity, mPlayerContainer, source, "", true);
+            mAdPlayer.addPlaybackListener(this);
+            mPlayerContainer.setVisibility(View.VISIBLE);
+            mAdPlayer.moveSurfaceToForeground();
+            mAdPlayer.disableSeeking();
+            mAdPlayer.hideTopChrome();
+        } else {
+            if (mListener != null){
+                mListener.skipAd();
+            }
+        }
     }
 
     public void removeAd() {
@@ -283,16 +292,18 @@ public class KIMAAdPlayer implements VideoAdPlayer, ExoplayerWrapper.PlaybackLis
 
     private Video.VideoType getVideoType() {
         String videoFileName = Uri.parse(mSrc).getLastPathSegment();
-        switch (videoFileName.substring(videoFileName.lastIndexOf('.')).toLowerCase()) {
-            case ".mpd":
-                return Video.VideoType.DASH;
-            case ".mp4":
-                return Video.VideoType.MP4;
-            case ".m3u8":
-                return Video.VideoType.HLS;
-            default:
-                return Video.VideoType.OTHER;
+        if (videoFileName != null && videoFileName.contains(".")) {
+            switch (videoFileName.substring(videoFileName.lastIndexOf('.')).toLowerCase()) {
+                case ".mpd":
+                    return Video.VideoType.DASH;
+                case ".mp4":
+                    return Video.VideoType.MP4;
+                case ".m3u8":
+                    return Video.VideoType.HLS;
+                default:
+                    return Video.VideoType.OTHER;
+            }
         }
-
-    }
+        return null;
+        }
 }
