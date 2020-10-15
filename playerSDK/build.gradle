@@ -34,10 +34,10 @@ android {
 
 dependencies {
     implementation project(':googlemediaframework')
-    implementation 'androidx.appcompat:appcompat:1.0.0'
-    implementation 'com.google.android.gms:play-services-cast-framework:17.0.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.gms:play-services-cast-framework:19.0.0'
     implementation 'com.googlecode.android-query:android-query:0.25.9'
-    implementation 'androidx.mediarouter:mediarouter:1.0.0'
+    implementation 'androidx.mediarouter:mediarouter:1.1.0'
     implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.0'
 }
 
