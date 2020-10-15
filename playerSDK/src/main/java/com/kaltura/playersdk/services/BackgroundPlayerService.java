@@ -25,6 +25,7 @@ import com.kaltura.playersdk.events.KPPlayheadUpdateEventListener;
 import com.kaltura.playersdk.events.KPStateChangedEventListener;
 import com.kaltura.playersdk.events.KPlayerState;
 import com.kaltura.playersdk.types.KPError;
+import com.kaltura.playersdk.types.MediaBundle;
 import com.kaltura.playersdk.utils.LogUtils;
 
 public class BackgroundPlayerService extends Service implements KPErrorEventListener, KPPlayheadUpdateEventListener, KPStateChangedEventListener, KPFullScreenToggledEventListener {
@@ -38,8 +39,12 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
     public String ENTRY_ID = "";
     public String KS = "";
     public String izsession = "";
+    public String adURL = "";
 
     int counter = 0;
+
+    boolean shouldResume = false;
+    double playback = 0.0f;
 
     KPlayerState currentState = KPlayerState.UNKNOWN;
 
@@ -96,10 +101,10 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
     @Override
     public void onCreate() {
         super.onCreate();
-        SERVICE_URL = "http://mp.streamamg.com";
-        PARTNER_ID = "3001133";
-        UI_CONF_ID = "30027349";
-        ENTRY_ID = "0_9fcwzpij";
+//        SERVICE_URL = "http://mp.streamamg.com";
+//        PARTNER_ID = "3001133";
+//        UI_CONF_ID = "30027349";
+//        ENTRY_ID = "0_9fcwzpij";
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O)
             startMyOwnForeground();
         else
@@ -136,8 +141,7 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
     }
 
     private PlayerViewController getPlayer(Activity activity, PlayerViewController player) {
-        boolean shouldResume = false;
-        double playback = 0.0f;
+
         if (mPlayerView != null) {
             playback = mPlayerView.getCurrentPlaybackTime();
             shouldResume = true;
@@ -147,37 +151,37 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
 
             if (mPlayerView != null) {
                 mPlayerView.loadPlayerIntoActivity(activity);
-
-                if (!SERVICE_URL.startsWith("http")) {
-                    SERVICE_URL = "http://" + SERVICE_URL;
-                }
-
-                KPPlayerConfig config = new KPPlayerConfig(SERVICE_URL, UI_CONF_ID, PARTNER_ID).setEntryId(ENTRY_ID);
-
-                if (KS.length() > 0) {
-                    config.setKS(KS);
-                }
-                if (izsession.length() > 0) {
-                    config.addConfig("izsession", izsession);
-                }
-
-                // Set your flashvars here
-                config.addConfig("chromecast.receiverLogo", "true");
-                config.addConfig("fullScreenBtn.plugin", "false");
-
-                config.addConfig("doubleClick.plugin", "true");
-                config.addConfig("doubleClick.leadWithFlash", "false");
-                config.addConfig("doubleClick.adTagUrl", "https://pubads.g.doubleclick.net/gampad/live/ads?iu=/21707781519/LiveScore_App/LiveScore_App_TV/LiveScore_App_TV_LiveStream&description_url=http%3A%2F%2Fwww.livescore.com&tfcd=0&npa=0&sz=300x400%7C300x415%7C320x50%7C320x480%7C400x300%7C420x315%7C480x480%7C554x416%7C640x480%7C728x90&cust_params=LS_Match%3D8-207681%26LS_Sport%3Dsoccer%26LS_League%3DLeague%2BC%2BGroup%2B1%26LS_Team%3DCyprus%2CLuxembourg%26LS_SubSection%3Duefa-nations-league%26LS_Environment%3DTesting&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=");
-
-
-
-                mPlayerView.initWithConfiguration(config);
-if (shouldResume){
-    mPlayerView.resumePlayer();
-    mPlayerView.resumeState();
-    mPlayerView.setPlaybackTime(playback);
-    mPlayerView.playFromCurrentPosition();
-}
+//
+//                if (!SERVICE_URL.startsWith("http")) {
+//                    SERVICE_URL = "http://" + SERVICE_URL;
+//                }
+//
+//                KPPlayerConfig config = new KPPlayerConfig(SERVICE_URL, UI_CONF_ID, PARTNER_ID).setEntryId(ENTRY_ID);
+//
+//                if (KS.length() > 0) {
+//                    config.setKS(KS);
+//                }
+//                if (izsession.length() > 0) {
+//                    config.addConfig("izsession", izsession);
+//                }
+//
+//                // Set your flashvars here
+//                config.addConfig("chromecast.receiverLogo", "true");
+//                config.addConfig("fullScreenBtn.plugin", "false");
+//
+//                config.addConfig("doubleClick.plugin", "true");
+//                config.addConfig("doubleClick.leadWithFlash", "false");
+//                config.addConfig("doubleClick.adTagUrl", "https://pubads.g.doubleclick.net/gampad/live/ads?iu=/21707781519/LiveScore_App/LiveScore_App_TV/LiveScore_App_TV_LiveStream&description_url=http%3A%2F%2Fwww.livescore.com&tfcd=0&npa=0&sz=300x400%7C300x415%7C320x50%7C320x480%7C400x300%7C420x315%7C480x480%7C554x416%7C640x480%7C728x90&cust_params=LS_Match%3D8-207681%26LS_Sport%3Dsoccer%26LS_League%3DLeague%2BC%2BGroup%2B1%26LS_Team%3DCyprus%2CLuxembourg%26LS_SubSection%3Duefa-nations-league%26LS_Environment%3DTesting&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=");
+//
+//
+//
+//                mPlayerView.initWithConfiguration(config);
+//if (shouldResume){
+//    mPlayerView.resumePlayer();
+//    mPlayerView.resumeState();
+//    mPlayerView.setPlaybackTime(playback);
+//    mPlayerView.playFromCurrentPosition();
+//}
                 mPlayerView.setOnKPErrorEventListener(this);
                 mPlayerView.setOnKPPlayheadUpdateEventListener(this);
                 mPlayerView.setOnKPFullScreenToggledEventListener(this);
@@ -205,6 +209,62 @@ if (shouldResume){
 
         }
         return mPlayerView;
+    }
+
+    public void updateMedia(MediaBundle bundle){
+          SERVICE_URL = bundle.SERVICE_URL;
+          PARTNER_ID = bundle.PARTNER_ID;
+          UI_CONF_ID = bundle.UI_CONF_ID;
+          ENTRY_ID = bundle.ENTRY_ID;
+          KS = bundle.KS;
+          izsession = bundle.izsession;
+          adURL = bundle.adURL;
+          shouldResume = false;
+          playback = 0.0;
+         runMedia();
+    }
+
+    private void runMedia(){
+        if (mPlayerView != null) {
+
+            if (!SERVICE_URL.startsWith("http")) {
+                SERVICE_URL = "http://" + SERVICE_URL;
+            }
+
+            KPPlayerConfig config = new KPPlayerConfig(SERVICE_URL, UI_CONF_ID, PARTNER_ID).setEntryId(ENTRY_ID);
+
+            if (KS.length() > 0) {
+                config.setKS(KS);
+            }
+            if (izsession.length() > 0) {
+                config.addConfig("izsession", izsession);
+            }
+
+            // Set your flashvars here
+            config.addConfig("chromecast.receiverLogo", "true");
+            config.addConfig("fullScreenBtn.plugin", "false");
+
+            if (!adURL.isEmpty()) {
+                config.addConfig("doubleClick.plugin", "true");
+                config.addConfig("doubleClick.leadWithFlash", "false");
+                config.addConfig("doubleClick.adTagUrl", adURL);
+            } else {
+                config.addConfig("doubleClick.plugin", "false");
+                config.addConfig("doubleClick.leadWithFlash", "false");
+                config.addConfig("doubleClick.adTagUrl", null);
+            }
+
+
+            mPlayerView.initWithConfiguration(config);
+            if (shouldResume){
+                mPlayerView.resumePlayer();
+                mPlayerView.resumeState();
+                mPlayerView.setPlaybackTime(playback);
+                mPlayerView.playFromCurrentPosition();
+            }
+
+
+        }
     }
 
     @Override
