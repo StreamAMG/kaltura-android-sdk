@@ -84,13 +84,13 @@ allprojects {
 Step 2. Add the dependency information in Module app build.gradle:
 
 ```
-implementation 'com.streamamg:playersdk:2.7.1'
+implementation 'com.streamamg:playersdk:2.7.3'
 ```
 
 If you are not using AndroidX in your app, you should exclude the following module to avoid incompatibilities:
 
 ```
-implementation 'com.streamamg:playersdk:2.7.1', {
+implementation 'com.streamamg:playersdk:2.7.3', {
     exclude group: 'androidx.core', module: 'core'
     exclude group: 'androidx.media', module:'media'
 }
@@ -345,6 +345,11 @@ Change Log:
 ===========
 
 All notable changes to this project will be documented in this section.
+
+### 2.7.3
+
+* Update IMA Player to version  3.20.0
+* Update Google play-services-cast-framework to v19.0.0
 
 ### 2.7.1
 
