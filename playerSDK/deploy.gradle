@@ -1,47 +1,50 @@
 apply plugin: 'maven'
 
+Properties local = new Properties()
+local.load(project.rootProject.file('local.properties').newDataInputStream())
+
 configurations {
     deployerJar
 }
 
 dependencies {
-    deployerJar "ar.com.synergian:wagon-git:0.2.3"
+    deployerJar "ar.com.synergian:wagon-git:0.3.0"
 }
-
-// BEFORE DEPLOY WITH uploadArchives, insert your bitbucket details (USERNAME, PASSWORD [crypted on BitBucket] and DEV_EMAIL) in gradle.properties files
 
 uploadArchives {
     configuration = configurations.archives
     repositories.mavenDeployer {
-        pom.groupId = GROUP
-        pom.artifactId = ARTIFACT_ID
-        pom.version = VERSION_CODE
-        configuration = configurations.deployerJar
-        repository(url: 'git:releases://https://' + USERNAME + ':' + PASSWORD + '@bitbucket.org/' + COMPANY + '/' + REPOSITORY_NAME + '.git')
-        snapshotRepository(url: 'git:snapshots://https://' + USERNAME + ':' + PASSWORD + '@bitbucket.org/' + COMPANY + '/' + REPOSITORY_NAME + '.git')
+        if (project.hasProperty('GROUP')) {
+            pom.groupId = GROUP
+            pom.artifactId = ARTIFACT_ID
+            pom.version = VERSION_CODE
+            configuration = configurations.deployerJar
+            repository(url: 'git:releases://https://' + local.getProperty('USERNAME') + ':' + local.getProperty('PASSWORD') + '@bitbucket.org/' + COMPANY + '/' + REPOSITORY_NAME + '.git')
+            snapshotRepository(url: 'git:snapshots://https://' + local.getProperty('USERNAME') + ':' + local.getProperty('PASSWORD') + '@bitbucket.org/' + COMPANY + '/' + REPOSITORY_NAME + '.git')
 
-        pom.project {
-            name POM_NAME
-            packaging POM_PACKAGING
-            description POM_DESCRIPTION
-            url REPOSITORY_URL
-            scm {
+            pom.project {
+                name POM_NAME
+                packaging POM_PACKAGING
+                description POM_DESCRIPTION
                 url REPOSITORY_URL
-                connection 'https://' + USERNAME + '@bitbucket.org/' + COMPANY + '/' + REPOSITORY_NAME + '.git'
-                developerConnection 'https://' + USERNAME + '@bitbucket.org/' + COMPANY + '/' + REPOSITORY_NAME + '.git'
-            }
-            licenses {
-                license {
-                    name "The Apache Software License, Version 2.0"
-                    url "http://www.apache.org/licenses/LICENSE-2.0.txt"
-                    distribution POM_NAME
+                scm {
+                    url REPOSITORY_URL
+                    connection 'https://' + local.getProperty('USERNAME') + '@bitbucket.org/' + COMPANY + '/' + REPOSITORY_NAME + '.git'
+                    developerConnection 'https://' + local.getProperty('USERNAME') + '@bitbucket.org/' + COMPANY + '/' + REPOSITORY_NAME + '.git'
                 }
-            }
-            developers {
-                developer {
-                    id USERNAME
-                    name POM_NAME
-                    email DEV_EMAIL
+                licenses {
+                    license {
+                        name "The Apache Software License, Version 2.0"
+                        url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                        distribution POM_NAME
+                    }
+                }
+                developers {
+                    developer {
+                        id local.getProperty('USERNAME')
+                        name POM_NAME
+                        email local.getProperty('DEV_EMAIL')
+                    }
                 }
             }
         }
