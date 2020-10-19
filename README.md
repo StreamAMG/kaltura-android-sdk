@@ -274,7 +274,7 @@ In order to play audio in background, the activity that uses the PlayerViewContr
 Implementation example:
 ```
     private boolean backgroundAudioEnabled = true;
-    
+
     @Override
     protected void onPause() {
         if (mPlayer != null && !backgroundAudioEnabled) {
@@ -282,7 +282,7 @@ Implementation example:
         }
         super.onPause();
     }
-    
+
     @Override
     protected void onResume() {
         if (mPlayer != null && !backgroundAudioEnabled) {
@@ -309,7 +309,7 @@ android {
     }
 }
 
-... 
+...
 
 dependencies {
     // change any com.android library version to 28.0.0
@@ -351,6 +351,5 @@ All notable changes to this project will be documented in this section.
 * Update IMA Player to version  3.20.0
 * Update Google play-services-cast-framework to v19.0.0
 
-### 2.7.1
-
-* Google Ads fix
+### 2.7.2
+Google Ads fix
