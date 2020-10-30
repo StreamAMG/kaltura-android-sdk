@@ -23,6 +23,7 @@ import com.kaltura.playersdk.events.KPErrorEventListener;
 import com.kaltura.playersdk.events.KPFullScreenToggledEventListener;
 import com.kaltura.playersdk.events.KPPlayheadUpdateEventListener;
 import com.kaltura.playersdk.events.KPStateChangedEventListener;
+import com.kaltura.playersdk.events.KPlayerServiceListener;
 import com.kaltura.playersdk.events.KPlayerState;
 import com.kaltura.playersdk.types.KPError;
 import com.kaltura.playersdk.types.MediaBundle;
@@ -31,6 +32,8 @@ import com.kaltura.playersdk.utils.LogUtils;
 public class BackgroundPlayerService extends Service implements KPErrorEventListener, KPPlayheadUpdateEventListener, KPStateChangedEventListener, KPFullScreenToggledEventListener {
 
     PlayerViewController mPlayerView = null;
+
+    KPlayerServiceListener mPlayerListener = null;
 
 
     public String SERVICE_URL = "";
@@ -133,10 +136,11 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
         startForeground(1, notification);
     }
 
-    public void setupPlayer(Activity activity, PlayerViewController player){
+    public void setupPlayer(Activity activity, PlayerViewController player, KPlayerServiceListener listener){
 
         Log.d("WRD", "service setUpPlayer: " + counter);
         counter++;
+        mPlayerListener = listener;
         getPlayer(activity, player);
     }
 
@@ -151,37 +155,6 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
 
             if (mPlayerView != null) {
                 mPlayerView.loadPlayerIntoActivity(activity);
-//
-//                if (!SERVICE_URL.startsWith("http")) {
-//                    SERVICE_URL = "http://" + SERVICE_URL;
-//                }
-//
-//                KPPlayerConfig config = new KPPlayerConfig(SERVICE_URL, UI_CONF_ID, PARTNER_ID).setEntryId(ENTRY_ID);
-//
-//                if (KS.length() > 0) {
-//                    config.setKS(KS);
-//                }
-//                if (izsession.length() > 0) {
-//                    config.addConfig("izsession", izsession);
-//                }
-//
-//                // Set your flashvars here
-//                config.addConfig("chromecast.receiverLogo", "true");
-//                config.addConfig("fullScreenBtn.plugin", "false");
-//
-//                config.addConfig("doubleClick.plugin", "true");
-//                config.addConfig("doubleClick.leadWithFlash", "false");
-//                config.addConfig("doubleClick.adTagUrl", "https://pubads.g.doubleclick.net/gampad/live/ads?iu=/21707781519/LiveScore_App/LiveScore_App_TV/LiveScore_App_TV_LiveStream&description_url=http%3A%2F%2Fwww.livescore.com&tfcd=0&npa=0&sz=300x400%7C300x415%7C320x50%7C320x480%7C400x300%7C420x315%7C480x480%7C554x416%7C640x480%7C728x90&cust_params=LS_Match%3D8-207681%26LS_Sport%3Dsoccer%26LS_League%3DLeague%2BC%2BGroup%2B1%26LS_Team%3DCyprus%2CLuxembourg%26LS_SubSection%3Duefa-nations-league%26LS_Environment%3DTesting&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=");
-//
-//
-//
-//                mPlayerView.initWithConfiguration(config);
-//if (shouldResume){
-//    mPlayerView.resumePlayer();
-//    mPlayerView.resumeState();
-//    mPlayerView.setPlaybackTime(playback);
-//    mPlayerView.playFromCurrentPosition();
-//}
                 mPlayerView.setOnKPErrorEventListener(this);
                 mPlayerView.setOnKPPlayheadUpdateEventListener(this);
                 mPlayerView.setOnKPFullScreenToggledEventListener(this);
@@ -242,7 +215,7 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
 
             // Set your flashvars here
             config.addConfig("chromecast.receiverLogo", "true");
-            config.addConfig("fullScreenBtn.plugin", "false");
+            //config.addConfig("fullScreenBtn.plugin", "false");
 
             if (!adURL.isEmpty()) {
                 config.addConfig("doubleClick.plugin", "true");
@@ -269,22 +242,30 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
 
     @Override
     public void onKPlayerError(PlayerViewController playerViewController, KPError error) {
-
+if (mPlayerListener != null){
+    mPlayerListener.onKPlayerError(playerViewController, error);
+}
     }
 
     @Override
     public void onKPlayerPlayheadUpdate(PlayerViewController playerViewController, long currentTimeMilliSeconds) {
-
+        if (mPlayerListener != null){
+            mPlayerListener.onKPlayerPlayheadUpdate(playerViewController, currentTimeMilliSeconds);
+        }
     }
 
     @Override
     public void onKPlayerStateChanged(PlayerViewController playerViewController, KPlayerState state) {
-Log.d("WRD", "New state = " + state);
+        if (mPlayerListener != null){
+            mPlayerListener.onKPlayerStateChanged(playerViewController, state);
+        }
     }
 
     @Override
     public void onKPlayerFullScreenToggled(PlayerViewController playerViewController, boolean isFullscreen) {
-
+        if (mPlayerListener != null){
+            mPlayerListener.onKPlayerFullScreenToggled(playerViewController, isFullscreen);
+        }
     }
 
     public class MyBinder extends Binder {

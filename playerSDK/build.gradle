@@ -21,6 +21,11 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            buildConfigField 'String', 'VERSION_NAME', '"' + kaltura.version + '"'
+        }
+        debug {
+            minifyEnabled false
+            buildConfigField 'String', 'VERSION_NAME', '"' + kaltura.version + '"'
         }
     }
     lintOptions {
@@ -51,4 +56,4 @@ artifacts {
     archives sourcesJar
 }
 
-apply from: 'deploy.gradle'
+//apply from: 'deploy.gradle'
