@@ -65,12 +65,7 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
         if (intent != null) {
             String action = intent.getAction();
             Log.d("WRD","using an intent with action " + action);
-//            switch (action) {
-//                Actions.START.name -> startService()
-//                Actions.STOP.name -> stopService()
-//                else -> log("This should never happen. No action in the received intent")
-//            }
-  //          startService();
+
         } else {
             Log.d("WRD",
                     "with a null intent. It has been probably restarted by the system."
@@ -82,11 +77,11 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
 
     @Override
     public void onDestroy() {
-        // TODO Auto-generated method stub
+        Log.d("WRD", "Svs On Destroy");
         super.onDestroy();
-        if (mPlayerView != null){
-            mPlayerView.removePlayer();
-        }
+//        if (mPlayerView != null){
+//            mPlayerView.removePlayer();
+//        }
     }
 
     @Override
@@ -104,10 +99,6 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
     @Override
     public void onCreate() {
         super.onCreate();
-//        SERVICE_URL = "http://mp.streamamg.com";
-//        PARTNER_ID = "3001133";
-//        UI_CONF_ID = "30027349";
-//        ENTRY_ID = "0_9fcwzpij";
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O)
             startMyOwnForeground();
         else
@@ -185,6 +176,7 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
     }
 
     public void updateMedia(MediaBundle bundle){
+          Boolean isTheSameMedia = (ENTRY_ID == bundle.ENTRY_ID);
           SERVICE_URL = bundle.SERVICE_URL;
           PARTNER_ID = bundle.PARTNER_ID;
           UI_CONF_ID = bundle.UI_CONF_ID;
@@ -192,8 +184,12 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
           KS = bundle.KS;
           izsession = bundle.izsession;
           adURL = bundle.adURL;
-          shouldResume = false;
-          playback = 0.0;
+          if (!isTheSameMedia) {
+              shouldResume = false;
+              playback = 0.0;
+          } else {
+              shouldResume = true;
+          }
          runMedia();
     }
 
