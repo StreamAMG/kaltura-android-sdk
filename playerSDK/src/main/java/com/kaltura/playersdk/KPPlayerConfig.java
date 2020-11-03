@@ -66,11 +66,11 @@ public class KPPlayerConfig implements Serializable {
 
 	static {
 		// Use System.out to print even when Log.X() are disabled.
-		System.out.println("Kaltura Player Android SDK, version " + BuildConfig.VERSION_NAME);
+		System.out.println("Kaltura Player Android SDK, version " + BuildConfig.VERSION_IDENTIFIER);
 	}
 	
 	public static String getPlayerSdkVersion() {
-		return BuildConfig.VERSION_NAME;
+		return BuildConfig.VERSION_IDENTIFIER;
 	}
 	
 	public CacheConfig getCacheConfig() {
@@ -93,7 +93,7 @@ public class KPPlayerConfig implements Serializable {
 		mAdMimeType = KMediaFormat.mp4_clear.mimeType;
 		mAdPreferredBitrate = -1; // in bits
 		mContentPreferredBitrate = -1; // in KBits
-		addConfig("nativeVersion", BuildConfig.VERSION_NAME);
+		addConfig("nativeVersion", BuildConfig.VERSION_IDENTIFIER);
 	}
 	
 	private KPPlayerConfig() {}
@@ -160,7 +160,7 @@ public class KPPlayerConfig implements Serializable {
 				}
 			}
 		}
-		config.addConfig("nativeVersion", BuildConfig.VERSION_NAME);
+		config.addConfig("nativeVersion", BuildConfig.VERSION_IDENTIFIER);
 		return config;
 	}
 

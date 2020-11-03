@@ -366,23 +366,25 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         if (config != null) {
             resetPlayer();
             mConfig = config;
-            mWebView.setVisibility(INVISIBLE);
-            mWebView.clearCache(true);
-            mWebView.clearHistory();
-            mWebView.loadUrl("about:blank");
-            mWebView.loadUrl(config.getVideoURL() + buildSupportedMediaFormats());
-            mIsJsCallReadyRegistration = false;
-            registerReadyEvent(new ReadyEventListener() {
-                @Override
-                public void handler() {
-                    mWebView.setVisibility(VISIBLE);
-                    if (mPlayerEventsHash != null) {
-                        for (String event : mPlayerEventsHash.keySet()) {
-                            mWebView.addEventListener(event);
+            if (mWebView != null) {
+                mWebView.setVisibility(INVISIBLE);
+                mWebView.clearCache(true);
+                mWebView.clearHistory();
+                mWebView.loadUrl("about:blank");
+                mWebView.loadUrl(config.getVideoURL() + buildSupportedMediaFormats());
+                mIsJsCallReadyRegistration = false;
+                registerReadyEvent(new ReadyEventListener() {
+                    @Override
+                    public void handler() {
+                        mWebView.setVisibility(VISIBLE);
+                        if (mPlayerEventsHash != null) {
+                            for (String event : mPlayerEventsHash.keySet()) {
+                                mWebView.addEventListener(event);
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
     }
 
@@ -455,6 +457,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
      * Recover from "releaseAndSavePosition", reload the player from previous position.
      * This method should be called when the main activity is resumed.
      */
+
     public void resumePlayer() {
         if (playerController != null) {
             playerController.recoverPlayer();
