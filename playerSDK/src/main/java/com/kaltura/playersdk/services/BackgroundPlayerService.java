@@ -25,9 +25,12 @@ import com.kaltura.playersdk.events.KPPlayheadUpdateEventListener;
 import com.kaltura.playersdk.events.KPStateChangedEventListener;
 import com.kaltura.playersdk.events.KPlayerServiceListener;
 import com.kaltura.playersdk.events.KPlayerState;
+import com.kaltura.playersdk.types.FlashVar;
 import com.kaltura.playersdk.types.KPError;
 import com.kaltura.playersdk.types.MediaBundle;
 import com.kaltura.playersdk.utils.LogUtils;
+
+import java.util.ArrayList;
 
 public class BackgroundPlayerService extends Service implements KPErrorEventListener, KPPlayheadUpdateEventListener, KPStateChangedEventListener, KPFullScreenToggledEventListener {
 
@@ -43,6 +46,8 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
     public String KS = "";
     public String izsession = "";
     public String adURL = "";
+
+    public ArrayList<FlashVar> flashVars = new ArrayList<>();
 
     int counter = 0;
 
@@ -175,6 +180,14 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
         return mPlayerView;
     }
 
+    public void clearFlashVars(){
+        flashVars.clear();
+    }
+
+    public void addFlashVar(FlashVar flashVar){
+        flashVars.add(flashVar);
+    }
+
     public void updateMedia(MediaBundle bundle){
           Boolean isTheSameMedia = (ENTRY_ID == bundle.ENTRY_ID);
           SERVICE_URL = bundle.SERVICE_URL;
@@ -195,6 +208,8 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
 
     private void runMedia(){
         if (mPlayerView != null) {
+
+            mPlayerView.freeze();  //changeMedia(ENTRY_ID);
 
             if (!SERVICE_URL.startsWith("http")) {
                 SERVICE_URL = "http://" + SERVICE_URL;
@@ -223,6 +238,11 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
                 config.addConfig("doubleClick.adTagUrl", null);
             }
 
+            for (FlashVar flashVar : flashVars){
+                config.addConfig(flashVar.key, flashVar.value);
+            }
+
+   //         config.addConfig("IframeCustomPluginCss1", "https://devpto.streamamg.com/assets/css/video-player.css");
 
             mPlayerView.initWithConfiguration(config);
             if (shouldResume){
