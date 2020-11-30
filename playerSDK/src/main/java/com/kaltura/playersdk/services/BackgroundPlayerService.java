@@ -35,6 +35,8 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
 
     KPlayerServiceListener mPlayerListener = null;
 
+    public static int customNotificationIcon = 0;
+
 
     public String SERVICE_URL = "";
     public String PARTNER_ID = "";
@@ -108,7 +110,7 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
     @RequiresApi(Build.VERSION_CODES.O)
     private void startMyOwnForeground()
     {
-        String NOTIFICATION_CHANNEL_ID = "example.permanence";
+        String NOTIFICATION_CHANNEL_ID = "player.permanence";
         String channelName = "Background Service";
         NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
         chan.setLightColor(Color.BLUE);
@@ -119,11 +121,21 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
         manager.createNotificationChannel(chan);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
-        Notification notification = notificationBuilder.setOngoing(true)
-                .setContentTitle("App is running in background")
-                .setPriority(NotificationManager.IMPORTANCE_MIN)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .build();
+        Notification notification;
+        if (customNotificationIcon != 0){
+            notification = notificationBuilder.setOngoing(true)
+                    .setContentTitle("App is running in background")
+                    .setSmallIcon(customNotificationIcon)
+                    .setPriority(NotificationManager.IMPORTANCE_MIN)
+                    .setCategory(Notification.CATEGORY_SERVICE)
+                    .build();
+        } else {
+             notification = notificationBuilder.setOngoing(true)
+                    .setContentTitle("App is running in background")
+                    .setPriority(NotificationManager.IMPORTANCE_MIN)
+                    .setCategory(Notification.CATEGORY_SERVICE)
+                    .build();
+        }
         startForeground(1, notification);
     }
 

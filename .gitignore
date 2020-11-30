@@ -25,3 +25,4 @@ local.properties
 .idea/*
 #sample app code
 /kaltura-android-app
+.DS_Store
