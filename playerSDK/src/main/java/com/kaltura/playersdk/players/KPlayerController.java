@@ -814,7 +814,7 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
     @Override
     public void playerStateChanged(int state) {
 
-        //LOGE(TAG, "XXXX playerStateChanged " + state);
+        LOGD("WRD", "XXXX playerStateChanged " + state);
         switch (state) {
             case KPlayerCallback.CAN_PLAY:
 
