@@ -296,6 +296,15 @@ if (mPlayerListener != null){
         }
     }
 
+    public void refreshMedia() {
+        if (mPlayerView != null) {
+
+            shouldResume = true;
+            playback = mPlayerView.getCurrentPlaybackTime();
+            runMedia();
+        }
+    }
+
     public class MyBinder extends Binder {
 
         public MyBinder(){
