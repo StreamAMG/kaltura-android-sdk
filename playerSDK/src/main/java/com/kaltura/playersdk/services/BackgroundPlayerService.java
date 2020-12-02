@@ -38,7 +38,7 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
 
     KPlayerServiceListener mPlayerListener = null;
 
-    public static int customNotificationIcon = 0;
+    private static int customNotificationIcon = 0;
 
 
     public String SERVICE_URL = "";
@@ -221,7 +221,7 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
     private void runMedia(){
         if (mPlayerView != null) {
 
-            mPlayerView.freeze();  //changeMedia(ENTRY_ID);
+          //  mPlayerView.freeze();  //changeMedia(ENTRY_ID);
 
             if (!SERVICE_URL.startsWith("http")) {
                 SERVICE_URL = "http://" + SERVICE_URL;
@@ -315,6 +315,10 @@ if (mPlayerListener != null){
            Log.d("WRD", "service getService");
             return BackgroundPlayerService.this;
         }
+    }
+
+    public static void setNotificationIcon(int icon){
+        customNotificationIcon = icon;
     }
 
 }
