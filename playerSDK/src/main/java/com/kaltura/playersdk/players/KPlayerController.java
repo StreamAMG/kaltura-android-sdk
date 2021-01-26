@@ -489,6 +489,10 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
         }
     }
 
+    public boolean isPaused(){
+        return currentState == UIState.Pause;
+    }
+
     @Override
     public void seek(double seconds) {
         currentState = UIState.Seeking;

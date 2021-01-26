@@ -917,6 +917,15 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         playerController.pause();
     }
 
+    public void recoverFromPause(){
+        playerController.play();
+        playerController.pause();
+    }
+
+    public boolean isPaused(){
+        return playerController.isPaused();
+    }
+
     public void registerReadyEvent(ReadyEventListener listener) {
         if (mIsJsCallReadyRegistration) {
             listener.handler();

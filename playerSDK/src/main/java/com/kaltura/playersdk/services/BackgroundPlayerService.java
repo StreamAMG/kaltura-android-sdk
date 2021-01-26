@@ -261,7 +261,10 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
                 mPlayerView.resumePlayer();
                 mPlayerView.resumeState();
                 mPlayerView.setPlaybackTime(playback);
-                mPlayerView.playFromCurrentPosition();
+                if (!mPlayerView.isPaused()) {
+                    mPlayerView.playFromCurrentPosition();
+                }
+
             }
 
 
@@ -298,7 +301,6 @@ if (mPlayerListener != null){
 
     public void refreshMedia() {
         if (mPlayerView != null) {
-
             shouldResume = true;
             playback = mPlayerView.getCurrentPlaybackTime();
             runMedia();
