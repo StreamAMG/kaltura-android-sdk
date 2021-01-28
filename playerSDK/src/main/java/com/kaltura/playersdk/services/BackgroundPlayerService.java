@@ -261,7 +261,7 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
                 mPlayerView.resumePlayer();
                 mPlayerView.resumeState();
                 mPlayerView.setPlaybackTime(playback);
-                if (!mPlayerView.isPaused()) {
+                if (mPlayerView.isPlaying()) {
                     mPlayerView.playFromCurrentPosition();
                 }
 
