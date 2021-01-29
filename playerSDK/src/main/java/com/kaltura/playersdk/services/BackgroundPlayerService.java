@@ -68,15 +68,8 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("WRD","onStartCommand executed with startId: $startId");
         if (intent != null) {
             String action = intent.getAction();
-            Log.d("WRD","using an intent with action " + action);
-
-        } else {
-            Log.d("WRD",
-                    "with a null intent. It has been probably restarted by the system."
-            );
         }
         return Service.START_STICKY;
 
@@ -84,11 +77,7 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
 
     @Override
     public void onDestroy() {
-        Log.d("WRD", "Svs On Destroy");
         super.onDestroy();
-//        if (mPlayerView != null){
-//            mPlayerView.removePlayer();
-//        }
     }
 
     @Override
@@ -145,8 +134,6 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
     }
 
     public void setupPlayer(Activity activity, PlayerViewController player, KPlayerServiceListener listener){
-
-        Log.d("WRD", "service setUpPlayer: " + counter);
         counter++;
         mPlayerListener = listener;
         getPlayer(activity, player);
@@ -220,9 +207,6 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
 
     private void runMedia(){
         if (mPlayerView != null) {
-
-          //  mPlayerView.freeze();  //changeMedia(ENTRY_ID);
-
             if (!SERVICE_URL.startsWith("http")) {
                 SERVICE_URL = "http://" + SERVICE_URL;
             }
@@ -236,9 +220,6 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
                 config.addConfig("izsession", izsession);
             }
 
-            // Set your flashvars here
-            config.addConfig("chromecast.receiverLogo", "true");
-            //config.addConfig("fullScreenBtn.plugin", "false");
 
             if (!adURL.isEmpty()) {
                 config.addConfig("doubleClick.plugin", "true");
@@ -253,8 +234,6 @@ public class BackgroundPlayerService extends Service implements KPErrorEventList
             for (FlashVar flashVar : flashVars){
                 config.addConfig(flashVar.key, flashVar.value);
             }
-
-   //         config.addConfig("IframeCustomPluginCss1", "https://devpto.streamamg.com/assets/css/video-player.css");
 
             mPlayerView.initWithConfiguration(config);
             if (shouldResume){

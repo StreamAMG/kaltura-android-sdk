@@ -2,7 +2,6 @@
 // Common values for Kaltura Player SDK
 def buildConfig = [
         version: '2.7.3',
-
         compileSdkVersion: 28,
         buildToolsVersion: '28.0.3',
         minSdkVersion: 16,
