@@ -3,12 +3,13 @@
   <groupId>com.streamamg</groupId>
   <artifactId>playersdk</artifactId>
   <versioning>
-    <release>2.7.2</release>
+    <release>2.7.3</release>
     <versions>
       <version>2.7.0</version>
       <version>2.7.1</version>
       <version>2.7.2</version>
+      <version>2.7.3</version>
     </versions>
-    <lastUpdated>20201002152508</lastUpdated>
+    <lastUpdated>20210129151944</lastUpdated>
   </versioning>
 </metadata>
