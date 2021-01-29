@@ -212,6 +212,10 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         }
     }
 
+    public void playFromCurrentPosition() {
+        play();
+    }
+
     // trigger timeupdate events
     public interface EventListener {
         void handler(String eventName, String params);
@@ -362,23 +366,25 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
         if (config != null) {
             resetPlayer();
             mConfig = config;
-            mWebView.setVisibility(INVISIBLE);
-            mWebView.clearCache(true);
-            mWebView.clearHistory();
-            mWebView.loadUrl("about:blank");
-            mWebView.loadUrl(config.getVideoURL() + buildSupportedMediaFormats());
-            mIsJsCallReadyRegistration = false;
-            registerReadyEvent(new ReadyEventListener() {
-                @Override
-                public void handler() {
-                    mWebView.setVisibility(VISIBLE);
-                    if (mPlayerEventsHash != null) {
-                        for (String event : mPlayerEventsHash.keySet()) {
-                            mWebView.addEventListener(event);
+            if (mWebView != null) {
+                mWebView.setVisibility(INVISIBLE);
+                mWebView.clearCache(true);
+                mWebView.clearHistory();
+                mWebView.loadUrl("about:blank");
+                mWebView.loadUrl(config.getVideoURL() + buildSupportedMediaFormats());
+                mIsJsCallReadyRegistration = false;
+                registerReadyEvent(new ReadyEventListener() {
+                    @Override
+                    public void handler() {
+                        mWebView.setVisibility(VISIBLE);
+                        if (mPlayerEventsHash != null) {
+                            for (String event : mPlayerEventsHash.keySet()) {
+                                mWebView.addEventListener(event);
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
     }
 
@@ -451,6 +457,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
      * Recover from "releaseAndSavePosition", reload the player from previous position.
      * This method should be called when the main activity is resumed.
      */
+
     public void resumePlayer() {
         if (playerController != null) {
             playerController.recoverPlayer();
@@ -816,7 +823,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
     //
     @Override
     public void eventWithValue(KPlayer player, String eventName, String eventValue) {
-        LOGD(TAG, "EventWithValue Name: " + eventName + " Value: " + eventValue);
+       LOGD(TAG, "EventWithValue Name: " + eventName + " Value: " + eventValue);
         KStringUtilities event = new KStringUtilities(eventName);
         KPlayerState kState = KPlayerState.getStateForEventName(eventName);
         if ((isMediaChanged && kState == KPlayerState.READY && getConfig().isAutoPlay())) {
@@ -908,6 +915,19 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
 
     private void pause() {
         playerController.pause();
+    }
+
+    public void recoverFromPause(){
+        playerController.play();
+        playerController.pause();
+    }
+
+    public boolean isPaused(){
+        return playerController.isPaused();
+    }
+
+    public boolean isPlaying() {
+        return playerController.isPlaying();
     }
 
     public void registerReadyEvent(ReadyEventListener listener) {
@@ -1121,6 +1141,10 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
                     break;
             }
         }
+    }
+
+    public void setPlaybackTime(double time){
+        playerController.setCurrentPlaybackTime((float)time);
     }
 
 

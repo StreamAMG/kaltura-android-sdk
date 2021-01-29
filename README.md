@@ -14,6 +14,7 @@ The Kaltura player-sdk-native component enables embedding the [kaltura player](h
 * Full [player.kaltura.com](http://player.kaltura.com) feature set for themes and plugins
 * HLS Playback
 * DFP IMA SDK
+* Background audio service
 
 
 For a full list of native embed advantages see native controls table within the [player toolkit basic usage guide](http://knowledge.kaltura.com/kaltura-player-v2-toolkit-theme-skin-guide).
@@ -84,13 +85,13 @@ allprojects {
 Step 2. Add the dependency information in Module app build.gradle:
 
 ```
-implementation 'com.streamamg:playersdk:2.7.2'
+implementation 'com.streamamg:playersdk:2.7.3'
 ```
 
 If you are not using AndroidX in your app, you should exclude the following module to avoid incompatibilities:
 
 ```
-implementation 'com.streamamg:playersdk:2.7.2', {
+implementation 'com.streamamg:playersdk:2.7.3', {
     exclude group: 'androidx.core', module: 'core'
     exclude group: 'androidx.media', module:'media'
 }
@@ -231,6 +232,116 @@ API Overview
  }
 ```
 
+### Player as a Service
+The player can now be added to a project as a service, allowing continual audio playback when the app is in the background.
+
+New convenience classes have been added to assist with running the service:
+
+MediaBundle - A central package of information describing the video to pass to the service
+FlashVar - A Key / Value Pair containing any flashvar information to pass to the player.
+
+The activity or fragment (or controller / presenter, etc) must conform to KPlayerServiceListener.
+
+```
+// Kotlin
+    var backgroundAudioService: BackgroundPlayerService? = null
+    var serviceBound = false
+    lateinit var mPlayerView: PlayerViewController
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_kotlin)
+    //... Set up view
+        mPlayerView = findViewById(R.id.player)
+
+
+        if(savedInstanceState == null) { // Only initialise the service once
+            initPlayerService()
+        }
+
+    }
+
+    // Initialisation of the Player as a Service
+    private fun initPlayerService() {
+        // Set an icon to show on the service notification (Android O and above)
+        BackgroundPlayerService.setNotificationIcon(R.drawable.ic_cast) 
+        // Start the background service
+        val serviceIntent = Intent(this, BackgroundPlayerService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent)
+        } else {
+            startService(serviceIntent)
+        }
+        // Bind to the service to interact with it
+        bindService(serviceIntent, myConnection, BIND_AUTO_CREATE);
+    }
+
+    // Service connection to bind to
+    val myConnection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName,
+                                        service: IBinder) {
+            val binder = service as BackgroundPlayerService.MyBinder
+            backgroundAudioService = binder.service
+            serviceBound = true
+            // Once the service is bound, we can access the player
+            setUpPlayer();
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            serviceBound = false
+        }
+    }
+
+    // Initialise the player itself
+    private fun setUpPlayer() {
+        // Access the player through the bound service
+        // setUpPlayer(activity: Activity, player: PlayerViewController, listener: KPlayerServiceListener)
+        backgroundAudioService?.setupPlayer(this, mPlayerView, this)
+        // Create a media bundle to pass to the player
+        var bundle = MediaBundle(SERVICE_URL, PARTNER_ID, UI_CONF_ID, ENTRY_ID, KS, izsession)
+        // include any ad links
+        bundle.adURL = adLink
+        // Include any Flash Vars - these will automatically be added to the player - ad flash vars are added automatically
+        backgroundAudioService?.clearFlashVars()
+        backgroundAudioService?.addFlashVar(FlashVar("chromecast.receiverLogo", "true"))
+        // Send media to the player
+        backgroundAudioService?.updateMedia(bundle)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // refresh the service if it exists
+        backgroundAudioService?.refreshMedia()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Only destroy the service of the activity is destroyed
+        if (mPlayerView.mediaControl != null) {
+            if (mPlayerView.mediaControl.isPlaying) {
+                mPlayerView.mediaControl.pause()
+            }
+        }
+        // Ensure player is removed and service is destroyed
+        mPlayerView.removePlayer()
+        val serviceIntent = Intent(this, BackgroundPlayerService::class.java)
+        stopService(serviceIntent)
+        backgroundAudioService = null
+    }
+
+
+    // KPlayerServiceListener overrides
+
+    override fun onKPlayerError(playerViewController: PlayerViewController?, error: KPError?) {}
+
+    override fun onKPlayerPlayheadUpdate(playerViewController: PlayerViewController?, currentTimeMilliSeconds: Long) {}
+
+    override fun onKPlayerStateChanged(playerViewController: PlayerViewController?, state: KPlayerState?) {}
+
+    override fun onKPlayerFullScreenToggled(playerViewController: PlayerViewController?, isFullscreen: Boolean) {}
+```
+
 
 ### Fetching duration:
 For fetching the duration of a video, the player must be in READY state:
@@ -266,30 +377,6 @@ Throughout the izsession our service is recognizing if user is allowed to play c
 ```
 String izsession = "00000000-0000-0000-0000-000000000000"; // Replace with your izsession
 config.addConfig("izsession", izsession);
-```
-
-### Play audio in background:
-In order to play audio in background, the activity that uses the PlayerViewController must have the _`onPause()`_ and _`onResume()`_ override methods implemented in this way:
-
-Implementation example:
-```
-    private boolean backgroundAudioEnabled = true;
-    
-    @Override
-    protected void onPause() {
-        if (mPlayer != null && !backgroundAudioEnabled) {
-            mPlayer.releaseAndSavePosition(true);
-        }
-        super.onPause();
-    }
-    
-    @Override
-    protected void onResume() {
-        if (mPlayer != null && !backgroundAudioEnabled) {
-            mPlayer.resumePlayer();
-        }
-        super.onResume();
-    }
 ```
 
 ### AndroidX support:
@@ -333,7 +420,7 @@ android:usesCleartextTraffic="true"
 
 ### How to enable Google Ad ###
 
-Add the following configs:
+Add the following configs (automatically added if using the background Player as a Service option):
 
 ```
     config.addConfig("doubleClick.plugin", "true");
@@ -345,6 +432,12 @@ Change Log:
 ===========
 
 All notable changes to this project will be documented in this section.
+
+### 2.7.3
+
+* Background audio service added
+* IMA Updated to latest version
+* play-services-cast-framework updated to latest version
 
 ### 2.7.2
 

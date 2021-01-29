@@ -21,6 +21,11 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            buildConfigField 'String', 'VERSION_IDENTIFIER', '"' + kaltura.version + '"'
+        }
+        debug {
+            minifyEnabled false
+            buildConfigField 'String', 'VERSION_IDENTIFIER', '"' + kaltura.version + '"'
         }
     }
     lintOptions {
@@ -34,11 +39,11 @@ android {
 
 dependencies {
     implementation project(':googlemediaframework')
-    implementation 'androidx.appcompat:appcompat:1.0.0'
-    implementation 'com.google.android.gms:play-services-cast-framework:10.0.1'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.gms:play-services-cast-framework:19.0.0'
     implementation 'com.googlecode.android-query:android-query:0.25.9'
-    implementation 'androidx.mediarouter:mediarouter:1.0.0'
-    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.3.2'
+    implementation 'androidx.mediarouter:mediarouter:1.2.0'
+    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.21.2'
 }
 
 // build a jar with source files
@@ -51,4 +56,4 @@ artifacts {
     archives sourcesJar
 }
 
-apply from: 'deploy.gradle'
+//apply from: 'deploy.gradle'

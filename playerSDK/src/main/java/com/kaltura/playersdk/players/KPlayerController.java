@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -420,6 +421,7 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
     }
 
     public void play() {
+        Log.d("WRD", "Playing");
         if (player == null && mCastProvider == null) {
             return;
         }
@@ -485,6 +487,10 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
                 }
             }
         }
+    }
+
+    public boolean isPaused(){
+        return currentState == UIState.Pause;
     }
 
     @Override
@@ -812,7 +818,7 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
     @Override
     public void playerStateChanged(int state) {
 
-        //LOGE(TAG, "XXXX playerStateChanged " + state);
+        LOGD("WRD", "XXXX playerStateChanged " + state);
         switch (state) {
             case KPlayerCallback.CAN_PLAY:
 
