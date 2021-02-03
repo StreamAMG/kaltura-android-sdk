@@ -97,6 +97,26 @@ implementation 'com.streamamg:playersdk:2.7.3', {
 }
 ```
 
+Java 8 compatibility
+=====
+
+Recent versions of the PlayerSDK require Java 8 compatibility.
+
+If you receive crashes when opening activities or fragments with the player embedded, please check your project contains the following in the build.gradle file:
+
+```
+android {
+
+    ...
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    ...
+
+```
 
 API Overview
 =====
