@@ -1,3 +1,5 @@
+:heavy_exclamation_mark: Please note this project is **deprecated**, please see [streamamg-sdk-android](https://github.com/StreamAMG/streamamg-sdk-android).
+
 [![Build Status](https://travis-ci.org/kaltura/player-sdk-native-android.svg?branch=master)](https://travis-ci.org/kaltura/player-sdk-native-android)
 
 
